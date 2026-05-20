@@ -680,7 +680,7 @@ function init3D() {
 
   // Cámara
   const camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 100);
-  camera.position.set(7, 3.2, 9);
+  camera.position.set(7, 3.2, 10);
   camera.lookAt(0, 1.3, 0);
 
   // Renderer
@@ -697,7 +697,7 @@ function init3D() {
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
   controls.minDistance = 4;
-  controls.maxDistance = 18;
+  controls.maxDistance = 25;
   controls.maxPolarAngle = Math.PI * 0.75;
   controls.update();
 
@@ -851,12 +851,12 @@ function init3D() {
       });
       
       // Conectar cubo de vistas (animación suave + centrado perfecto)
-      const cubeDist = 9;
+      const cubeDist = 11;
       const headOffset = 0; // cámara a la altura del target
       document.querySelectorAll('#cube3d div[data-view]').forEach(face => {
         face.onclick = () => {
-          // target más bajo para que la cabeza entre completa
-          const target = new THREE.Vector3(0, mCenter.y - mSize.y * 0.18, 0);
+          // target ligeramente bajo para enmarcar bien
+          const target = new THREE.Vector3(0, mCenter.y - mSize.y * 0.06, 0);
           controls.target.copy(target);
           switch(face.dataset.view) {
             case 'front':  camera.position.set(target.x, target.y + headOffset, target.z + cubeDist); break;
@@ -874,9 +874,9 @@ function init3D() {
       const isoBtn = document.getElementById('btn-iso');
       if (isoBtn) {
         isoBtn.onclick = () => {
-          const t = new THREE.Vector3(0, mCenter.y - mSize.y * 0.18, 0);
+          const t = new THREE.Vector3(0, mCenter.y - mSize.y * 0.06, 0);
           controls.target.copy(t);
-          const isoDist = 10;
+          const isoDist = 12;
           // Ángulo isométrico: 45° horizontal, 35.26° vertical
           const angleH = Math.PI / 4;
           const angleV = Math.atan(Math.sin(Math.PI/6));
