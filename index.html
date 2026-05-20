@@ -848,10 +848,10 @@ function init3D() {
     }
   );
 
-  // PLANOS SEMITRANSPARENTES (ajustados al modelo cargado)
-  const planeY = 1.6;  // altura centro ajustada al modelo GLB
-  const planeH = 4.8;  // altura total de planos
-  const planeW = 2.6;  // ancho total
+  // PLANOS SEMITRANSPARENTES (agrandados para cubrir todo el cuerpo)
+  const planeY = 1.5;
+  const planeH = 7.0;  // altura: cubre de pies a cabeza
+  const planeW = 3.8;  // ancho: cubre brazos extendidos
   
   // Sagital (rosa) - XY, divide izq/der
   const sagitalGeo = new THREE.PlaneGeometry(planeW, planeH);
@@ -904,8 +904,8 @@ function init3D() {
   transPlane.renderOrder = 1;
   scene.add(transPlane);
 
-  // Anillo transversal
-  const ringGeo = new THREE.TorusGeometry(1.1, 0.025, 8, 48);
+  // Anillo transversal (más grande para cubrir la figura)
+  const ringGeo = new THREE.TorusGeometry(1.5, 0.03, 8, 48);
   const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: '#fbbf24', transparent: true, opacity: 0.6, depthTest: true }));
   ring.position.set(0, 1.9, 0);
   ring.rotation.x = Math.PI / 2;
