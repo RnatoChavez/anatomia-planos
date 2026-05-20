@@ -685,19 +685,29 @@
       <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#94a3b8;font-size:0.8rem;pointer-events:none;">
         🖱️ Arrastra para girar · Scroll para zoom · Click derecho para mover
       </div>
+      <!-- Cubo de vistas estilo AutoCAD -->
+      <div id="viewcube" style="position:absolute;bottom:14px;right:14px;width:64px;height:64px;perspective:300px;z-index:10;">
+        <div id="cube3d" style="width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.4s ease;">
+          <div data-view="front" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:9px;font-weight:700;cursor:pointer;transform:translateZ(32px);">FRONT</div>
+          <div data-view="back" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:9px;font-weight:700;cursor:pointer;transform:rotateY(180deg) translateZ(32px);">POST</div>
+          <div data-view="right" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:9px;font-weight:700;cursor:pointer;transform:rotateY(90deg) translateZ(32px);">DER</div>
+          <div data-view="left" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:9px;font-weight:700;cursor:pointer;transform:rotateY(-90deg) translateZ(32px);">IZQ</div>
+          <div data-view="top" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:9px;font-weight:700;cursor:pointer;transform:rotateX(-90deg) translateZ(32px);">SUP</div>
+          <div data-view="bottom" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:9px;font-weight:700;cursor:pointer;transform:rotateX(90deg) translateZ(32px);">INF</div>
+        </div>
+      </div>
     </div>
 
-    <div class="legend" style="margin-top:1rem;">
-      <div class="legend-item" style="cursor:default;">
-        <span class="legend-dot" style="background:#f472b6"></span> Sagital
-      </div>
-      <div class="legend-item" style="cursor:default;">
-        <span class="legend-dot" style="background:#34d399"></span> Frontal (Coronal)
-      </div>
-      <div class="legend-item" style="cursor:default;">
-        <span class="legend-dot" style="background:#fbbf24"></span> Transversal (Axial)
-      </div>
+    <div style="display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
+      <button id="btn-sagital" class="plane-toggle active" style="background:#f472b620;border:2px solid #f472b6;color:#f472b6;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟣 Sagital</button>
+      <button id="btn-frontal" class="plane-toggle active" style="background:#34d39920;border:2px solid #34d399;color:#34d399;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟢 Frontal</button>
+      <button id="btn-transversal" class="plane-toggle active" style="background:#fbbf2420;border:2px solid #fbbf24;color:#fbbf24;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟡 Transversal</button>
     </div>
+
+    <style>
+      .plane-toggle.inactive { opacity:0.35; border-style:dashed; background:transparent!important; }
+      #cube3d div:hover { background:#334155!important; border-color:#38bdf8!important; }
+    </style>
 
     <div class="info-box" style="margin-top:1.5rem;">
       <strong>💡 En 3D se entiende mejor:</strong> gira el modelo para ver cómo el plano <strong style="color:#f472b6">sagital</strong> 
@@ -735,6 +745,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Solo iniciar Three.js cuando la sección 3D esté visible
 let threeInited = false;
+let planesVisible = { sagital: true, frontal: true, transversal: true };
+let planeObjects = {};
+let viewControls = null;
 
 function init3D() {
   if (threeInited) return;
@@ -763,6 +776,7 @@ function init3D() {
 
   // Controles
   const controls = new OrbitControls(camera, renderer.domElement);
+  viewControls = controls;
   controls.target.set(0, 1.5, 0);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
@@ -900,6 +914,42 @@ function init3D() {
       ring.position.set(0, waistY, 0);
       ring.rotation.x = Math.PI / 2;
       scene.add(ring);
+
+      // Guardar referencias para los botones toggle
+      planeObjects = {
+        sagital: [sagitalPlane, sagitalEdge],
+        frontal: [frontalPlane, frontalEdge],
+        transversal: [transPlane, ring]
+      };
+      
+      // Conectar botones toggle
+      ['sagital','frontal','transversal'].forEach(name => {
+        const btn = document.getElementById('btn-' + name);
+        if (btn) {
+          btn.onclick = () => {
+            planesVisible[name] = !planesVisible[name];
+            btn.classList.toggle('inactive', !planesVisible[name]);
+            planeObjects[name].forEach(obj => { obj.visible = planesVisible[name]; });
+          };
+        }
+      });
+      
+      // Conectar cubo de vistas
+      document.querySelectorAll('#cube3d div[data-view]').forEach(face => {
+        face.onclick = () => {
+          const d = 6;
+          const t = controls.target;
+          switch(face.dataset.view) {
+            case 'front':  camera.position.set(t.x, t.y, t.z + d); break;
+            case 'back':   camera.position.set(t.x, t.y, t.z - d); break;
+            case 'right':  camera.position.set(t.x + d, t.y, t.z); break;
+            case 'left':   camera.position.set(t.x - d, t.y, t.z); break;
+            case 'top':    camera.position.set(t.x, t.y + d, t.z); break;
+            case 'bottom': camera.position.set(t.x, t.y - d, t.z); break;
+          }
+          controls.update();
+        };
+      });
     },
     (progress) => {
       if (progress.total) {
