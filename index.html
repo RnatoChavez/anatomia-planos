@@ -766,10 +766,16 @@ function init3D() {
       modelGroup.add(model);
       document.querySelector('#container3d .click-hint')?.remove();
 
-      // ── CREAR PLANOS basados en el tamaño REAL del modelo ──
+      // ── Reposicionar cámara para encuadrar el modelo completo ──
       const modelBox = new THREE.Box3().setFromObject(modelGroup);
       const mSize = modelBox.getSize(new THREE.Vector3());
       const mCenter = modelBox.getCenter(new THREE.Vector3());
+      const fitDist = Math.max(mSize.x, mSize.y, mSize.z) * 2.0;
+      camera.position.set(mCenter.x, mCenter.y, mCenter.z + fitDist);
+      controls.target.copy(mCenter);
+      controls.update();
+
+      // ── CREAR PLANOS basados en el tamaño REAL del modelo ──
       
       const planeH = mSize.y * 1.05;  // solo 5% más alto
       const planeW = mSize.x * 1.05;  // solo 5% más ancho
