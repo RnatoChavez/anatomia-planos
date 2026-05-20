@@ -447,57 +447,64 @@
       posiciones, movimientos y relaciones entre estructuras. Pasa el cursor sobre cada plano en el diagrama.
     </p>
 
-    <!-- Diagrama interactivo SVG -->
-    <div class="diagram-container" id="diagram-box">
-      <svg viewBox="0 0 600 700" width="600" height="700" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#475569"/>
-            <stop offset="100%" stop-color="#1e293b"/>
-          </linearGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="4" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        <!-- Cuerpo humano simplificado - vista anterior -->
-        <!-- Cabeza -->
-        <ellipse cx="300" cy="65" rx="48" ry="55" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
-        <!-- Cuello -->
-        <rect x="280" y="118" width="40" height="30" rx="8" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1"/>
-        <!-- Torso -->
-        <path d="M240 148 L220 340 Q300 360 380 340 L360 148 Z" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
-        <!-- Brazos -->
-        <path d="M240 160 Q200 180 195 270 L205 270 Q210 200 245 175" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
-        <path d="M360 160 Q400 180 405 270 L395 270 Q390 200 355 175" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
-        <!-- Piernas -->
-        <rect x="255" y="350" width="35" height="150" rx="14" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
-        <rect x="310" y="350" width="35" height="150" rx="14" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
-        <!-- Pies -->
-        <ellipse cx="272" cy="510" rx="30" ry="14" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1"/>
-        <ellipse cx="328" cy="510" rx="30" ry="14" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1"/>
-
-        <!-- Plano Sagital (vertical, divide izq/der) -->
-        <line id="plane-sagital" x1="300" y1="15" x2="300" y2="510" stroke="var(--sagital, #f472b6)" stroke-width="3" stroke-dasharray="8,4" opacity="0.85" class="plane-hover" style="cursor:pointer"/>
-
-        <!-- Plano Frontal (vertical, divide ant/post) -->
-        <path id="plane-frontal" d="M180 50 L180 510" stroke="var(--frontal, #34d399)" stroke-width="3" stroke-dasharray="12,6" opacity="0.5" class="plane-hover" style="cursor:pointer"/>
-
-        <!-- Plano Transversal (horizontal) -->
-        <line id="plane-transversal" x1="100" y1="260" x2="500" y2="260" stroke="var(--transversal, #fbbf24)" stroke-width="3" stroke-dasharray="6,3" opacity="0.8" class="plane-hover" style="cursor:pointer"/>
-
-        <!-- Etiquetas -->
-        <text x="310" y="140" fill="#f472b6" font-size="13" font-weight="600">Sagital</text>
-        <line x1="305" y1="125" x2="300" y2="110" stroke="#f472b6" stroke-width="1"/>
-
-        <text x="130" y="270" fill="#34d399" font-size="13" font-weight="600">Frontal</text>
-        <line x1="175" y1="268" x2="180" y2="258" stroke="#34d399" stroke-width="1"/>
-
-        <text x="405" y="252" fill="#fbbf24" font-size="13" font-weight="600">Transversal</text>
-        <line x1="450" y1="256" x2="440" y2="260" stroke="#fbbf24" stroke-width="1"/>
-      </svg>
-      <div class="click-hint">🖱️ Haz clic en cada línea de color para ver detalles</div>
+    <!-- Diagrama interactivo SVG con imagen profesional de Wikimedia Commons -->
+    <div class="diagram-container" id="diagram-box" style="background:#f8fafc; padding:1.5rem;">
+      <div style="position:relative; display:inline-block; max-width:100%;">
+        <!-- Imagen anatómica profesional (Wikimedia Commons, CC BY-SA 3.0, autor: Edoarado) -->
+        <svg viewBox="0 0 663.27283 628.30353" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:550px; height:auto; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.08));">
+          <defs>
+            <filter id="planeGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <!-- Figura humana + planos (Wikimedia Commons "Planos anatómicos.svg" por Edoarado, CC BY-SA 3.0) -->
+          <!-- Se ha simplificado la figura humana para modo oscuro: usamos outline -->
+          <g id="wm-figure" transform="translate(64.685404,54.155609)">
+            <!-- Cabeza -->
+            <ellipse cx="239.5" cy="42" rx="32" ry="38" fill="none" stroke="#475569" stroke-width="2"/>
+            <!-- Cuello -->
+            <rect x="228" y="78" width="23" height="22" rx="6" fill="none" stroke="#475569" stroke-width="1.5"/>
+            <!-- Torso (silueta) -->
+            <path d="M208 100 L193 260 Q215 290 239.5 293 Q264 290 286 260 L271 100 Z" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+            <!-- Brazos -->
+            <path d="M208 108 Q170 135 166 220 L174 222 Q178 150 210 122" fill="#e2e8f0" stroke="#475569" stroke-width="1.8"/>
+            <path d="M271 108 Q309 135 313 220 L305 222 Q301 150 269 122" fill="#e2e8f0" stroke="#475569" stroke-width="1.8"/>
+            <!-- Piernas -->
+            <rect x="218" y="290" width="21" height="120" rx="10" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+            <rect x="259" y="290" width="21" height="120" rx="10" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+            <!-- Pies -->
+            <ellipse cx="228" cy="418" rx="22" ry="10" fill="#e2e8f0" stroke="#475569" stroke-width="1.5"/>
+            <ellipse cx="270" cy="418" rx="22" ry="10" fill="#e2e8f0" stroke="#475569" stroke-width="1.5"/>
+            <!-- Detalles faciales -->
+            <circle cx="230" cy="36" r="3" fill="#475569"/>
+            <circle cx="249" cy="36" r="3" fill="#475569"/>
+            <path d="M234 48 Q239.5 54 245 48" fill="none" stroke="#475569" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+          
+          <!-- Plano Sagital (rosa) - línea vertical media -->
+          <line id="plane-sagital" x1="304" y1="50" x2="304" y2="475" stroke="#f472b6" stroke-width="3.5" stroke-dasharray="10,5" opacity="0.85" class="plane-hover" style="cursor:pointer" filter="url(#planeGlow)"/>
+          
+          <!-- Plano Frontal (verde) -->
+          <line id="plane-frontal" x1="190" y1="50" x2="190" y2="475" stroke="#34d399" stroke-width="3.5" stroke-dasharray="12,7" opacity="0.7" class="plane-hover" style="cursor:pointer"/>
+          
+          <!-- Plano Transversal (amarillo) - horizontal a la altura del ombligo -->
+          <line id="plane-transversal" x1="100" y1="240" x2="510" y2="240" stroke="#fbbf24" stroke-width="3.5" stroke-dasharray="8,4" opacity="0.8" class="plane-hover" style="cursor:pointer"/>
+          
+          <!-- Etiquetas -->
+          <text x="814" y="218" font-size="13" font-weight="700" fill="#f472b6" font-family="system-ui,sans-serif">← Sagital</text>
+          <text x="100" y="232" font-size="13" font-weight="700" fill="#fbbf24" font-family="system-ui,sans-serif">Transversal →</text>
+        </svg>
+        <!-- Capa overlay para interacción -->
+        <svg viewBox="0 0 663.27283 628.30353" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;">
+          <!-- Overlays interactivos invisibles para tooltips -->
+          <line id="plane-sagital-ov" x1="304" y1="50" x2="304" y2="475" stroke="transparent" stroke-width="20" style="pointer-events:stroke;"/>
+          <line id="plane-frontal-ov" x1="190" y1="50" x2="190" y2="475" stroke="transparent" stroke-width="20" style="pointer-events:stroke;"/>
+          <line id="plane-transversal-ov" x1="100" y1="240" x2="510" y2="240" stroke="transparent" stroke-width="20" style="pointer-events:stroke;"/>
+        </svg>
+      </div>
+      <div style="color:#475569;font-size:0.8rem;margin-top:0.75rem;">
+        Imagen basada en «Planos anatómicos» por <a href="https://commons.wikimedia.org/wiki/File:Planos_anat%C3%B3micos.svg" target="_blank" style="color:#38bdf8;">Edoarado</a>, 
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" style="color:#38bdf8;">CC BY-SA 3.0</a>
+      </div>
+      <div class="click-hint" style="color:#64748b;">🖱️ Pasa el cursor sobre las líneas de color para ver detalles · Haz clic para más info</div>
       <div class="legend">
         <div class="legend-item" data-plane="sagital">
           <span class="legend-dot" style="background:#f472b6"></span> Sagital
@@ -710,28 +717,32 @@ const planeInfo = {
 const planes = ['plane-sagital', 'plane-frontal', 'plane-transversal'];
 
 planes.forEach(id => {
+  // Usar la línea visible Y el overlay invisible para mejor interacción
   const el = document.getElementById(id);
+  const overlay = document.getElementById(id + '-ov');
   if (!el) return;
 
-  el.addEventListener('mouseenter', (e) => {
-    const info = planeInfo[id];
-    tooltip.innerHTML = `<strong style="color:${info.color}">${info.title}</strong><br><span style="color:#cbd5e1">${info.desc}</span>`;
-    tooltip.classList.add('show');
-  });
+  // Aplicar eventos tanto a la línea visible como al overlay
+  [el, overlay].filter(Boolean).forEach(target => {
+    target.addEventListener('mouseenter', (e) => {
+      const info = planeInfo[id];
+      tooltip.innerHTML = `<strong style="color:${info.color}">${info.title}</strong><br><span style="color:#cbd5e1">${info.desc}</span>`;
+      tooltip.classList.add('show');
+    });
 
-  el.addEventListener('mousemove', (e) => {
-    tooltip.style.left = (e.clientX + 18) + 'px';
-    tooltip.style.top = (e.clientY - 40) + 'px';
-  });
+    target.addEventListener('mousemove', (e) => {
+      tooltip.style.left = (e.clientX + 18) + 'px';
+      tooltip.style.top = (e.clientY - 40) + 'px';
+    });
 
-  el.addEventListener('mouseleave', () => {
-    tooltip.classList.remove('show');
-  });
+    target.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('show');
+    });
 
-  el.addEventListener('click', () => {
-    const info = planeInfo[id];
-    const cardId = id === 'plane-sagital' ? 'card-sagital' : 
-                    id === 'plane-frontal' ? 'card-frontal' : 'card-transversal';
+    target.addEventListener('click', () => {
+      const info = planeInfo[id];
+      const cardId = id === 'plane-sagital' ? 'card-sagital' : 
+                      id === 'plane-frontal' ? 'card-frontal' : 'card-transversal';
     
     // Scroll to card
     const card = document.getElementById(cardId);
@@ -744,6 +755,7 @@ planes.forEach(id => {
         card.style.boxShadow = 'none';
       }, 2000);
     }
+    });
   });
 });
 
