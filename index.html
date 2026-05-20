@@ -847,10 +847,10 @@ function init3D() {
       
       // Conectar cubo de vistas (animación suave + centrado perfecto)
       const cubeDist = 7;
-      const headOffset = mSize.y * 0.02; // casi al centro
+      const headOffset = mSize.y * -0.06; // cámara ligeramente bajo el centro = cabeza más abajo en el encuadre
       document.querySelectorAll('#cube3d div[data-view]').forEach(face => {
         face.onclick = () => {
-          const target = new THREE.Vector3(0, mCenter.y, 0);
+          const target = new THREE.Vector3(0, mCenter.y - mSize.y * 0.08, 0);
           controls.target.copy(target);
           switch(face.dataset.view) {
             case 'front':  camera.position.set(target.x, target.y + headOffset, target.z + cubeDist); break;
