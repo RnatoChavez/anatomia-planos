@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planos Anatómicos · Estudio Interactivo</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --sagital: #f472b6;
+    --frontal: #34d399;
+    --transversal: #fbbf24;
+    --correct: #4ade80;
+    --wrong: #f87171;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--sagital), var(--frontal), var(--transversal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    color: var(--muted);
+    margin-top: 0.5rem;
+    font-size: 1.05rem;
+  }
+
+  /* ── Nav tabs ── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+
+  nav button {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  nav button:hover { color: var(--text); border-color: var(--accent); }
+  nav button.active {
+    background: var(--accent);
+    color: #0f172a;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ── Main layout ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  /* ── Diagrama interactivo ── */
+  .diagram-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .diagram-container svg {
+    max-width: 100%;
+    height: auto;
+    cursor: default;
+  }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    transition: background 0.2s;
+  }
+
+  .legend-item:hover { background: rgba(255,255,255,0.05); }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  /* ── Cards ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(56,189,248,0.1);
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+  }
+
+  .card p { color: var(--muted); font-size: 0.95rem; }
+
+  .card .accent-bar {
+    height: 3px;
+    border-radius: 999px;
+    margin-bottom: 1rem;
+    width: 40px;
+  }
+
+  .card-sagital .accent-bar { background: var(--sagital); }
+  .card-frontal .accent-bar { background: var(--frontal); }
+  .card-transversal .accent-bar { background: var(--transversal); }
+
+  /* ── Info box ── */
+  .info-box {
+    background: rgba(56,189,248,0.08);
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .info-box strong { color: var(--accent); }
+
+  .info-box ul {
+    margin: 1rem 0 0 1.5rem;
+  }
+
+  .info-box li {
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── Tabla de ejes ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+  }
+
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  td { color: var(--muted); }
+
+  /* ── Quiz ── */
+  .quiz-question {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-question p {
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quiz-option {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+
+  .quiz-option:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(56,189,248,0.08);
+  }
+
+  .quiz-option.correct {
+    border-color: var(--correct);
+    background: rgba(74,222,128,0.12);
+    color: var(--correct);
+  }
+
+  .quiz-option.wrong {
+    border-color: var(--wrong);
+    background: rgba(248,113,113,0.12);
+    color: var(--wrong);
+  }
+
+  .quiz-option:disabled { cursor: not-allowed; opacity: 0.8; }
+
+  .quiz-feedback {
+    margin-top: 0.75rem;
+    font-weight: 600;
+    min-height: 1.5rem;
+  }
+
+  .quiz-score {
+    text-align: center;
+    font-size: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .quiz-score span {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .btn {
+    background: var(--accent);
+    color: #0f172a;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: opacity 0.2s;
+  }
+
+  .btn:hover { opacity: 0.85; }
+
+  /* ── Flashcard ── */
+  .flashcard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .flashcard {
+    perspective: 1000px;
+    height: 180px;
+    cursor: pointer;
+  }
+
+  .flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+  }
+
+  .flashcard.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+  }
+
+  .flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .flashcard-front {
+    background: var(--card);
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .flashcard-back {
+    background: rgba(56,189,248,0.1);
+    transform: rotateY(180deg);
+    color: var(--accent);
+    font-size: 0.95rem;
+  }
+
+  .flashcard-hint {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+
+  /* ── SVG interaction ── */
+  .plane-hover { transition: opacity 0.3s, stroke-width 0.3s; }
+  .diagram-container .click-hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+
+  /* ── Tooltip ── */
+  .tooltip {
+    position: fixed;
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.2s;
+    max-width: 220px;
+  }
+
+  .tooltip.show { opacity: 1; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.6rem; }
+    nav button { padding: 0.5rem 0.9rem; font-size: 0.8rem; }
+    .cards { grid-template-columns: 1fr; }
+    .legend { gap: 0.75rem; }
+    .flashcard-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── Highlight animation ── */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .highlight-pulse { animation: pulse 1.5s ease-in-out 3; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Planos y Ejes Anatómicos</h1>
+  <p>Explora los planos sagital, frontal y transversal — la base del estudio anatómico</p>
+</header>
+
+<nav>
+  <button class="active" data-section="planos">📐 Planos</button>
+  <button data-section="ejes">📏 Ejes</button>
+  <button data-section="quiz">🧠 Quiz</button>
+  <button data-section="flashcards">🃏 Flashcards</button>
+</nav>
+
+<main>
+  <!-- ═══════════ PLANOS ═══════════ -->
+  <section class="section active" id="planos">
+    <h2>📐 Los 3 Planos Anatómicos</h2>
+    <p style="color:var(--muted);margin-bottom:1.5rem;">
+      Los planos anatómicos son cortes imaginarios que dividen el cuerpo para describir
+      posiciones, movimientos y relaciones entre estructuras. Pasa el cursor sobre cada plano en el diagrama.
+    </p>
+
+    <!-- Diagrama interactivo SVG -->
+    <div class="diagram-container" id="diagram-box">
+      <svg viewBox="0 0 600 700" width="600" height="700" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#475569"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Cuerpo humano simplificado - vista anterior -->
+        <!-- Cabeza -->
+        <ellipse cx="300" cy="65" rx="48" ry="55" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
+        <!-- Cuello -->
+        <rect x="280" y="118" width="40" height="30" rx="8" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1"/>
+        <!-- Torso -->
+        <path d="M240 148 L220 340 Q300 360 380 340 L360 148 Z" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
+        <!-- Brazos -->
+        <path d="M240 160 Q200 180 195 270 L205 270 Q210 200 245 175" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
+        <path d="M360 160 Q400 180 405 270 L395 270 Q390 200 355 175" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
+        <!-- Piernas -->
+        <rect x="255" y="350" width="35" height="150" rx="14" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
+        <rect x="310" y="350" width="35" height="150" rx="14" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1.5"/>
+        <!-- Pies -->
+        <ellipse cx="272" cy="510" rx="30" ry="14" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1"/>
+        <ellipse cx="328" cy="510" rx="30" ry="14" fill="url(#bodyGrad)" stroke="#64748b" stroke-width="1"/>
+
+        <!-- Plano Sagital (vertical, divide izq/der) -->
+        <line id="plane-sagital" x1="300" y1="15" x2="300" y2="510" stroke="var(--sagital, #f472b6)" stroke-width="3" stroke-dasharray="8,4" opacity="0.85" class="plane-hover" style="cursor:pointer"/>
+
+        <!-- Plano Frontal (vertical, divide ant/post) -->
+        <path id="plane-frontal" d="M180 50 L180 510" stroke="var(--frontal, #34d399)" stroke-width="3" stroke-dasharray="12,6" opacity="0.5" class="plane-hover" style="cursor:pointer"/>
+
+        <!-- Plano Transversal (horizontal) -->
+        <line id="plane-transversal" x1="100" y1="260" x2="500" y2="260" stroke="var(--transversal, #fbbf24)" stroke-width="3" stroke-dasharray="6,3" opacity="0.8" class="plane-hover" style="cursor:pointer"/>
+
+        <!-- Etiquetas -->
+        <text x="310" y="140" fill="#f472b6" font-size="13" font-weight="600">Sagital</text>
+        <line x1="305" y1="125" x2="300" y2="110" stroke="#f472b6" stroke-width="1"/>
+
+        <text x="130" y="270" fill="#34d399" font-size="13" font-weight="600">Frontal</text>
+        <line x1="175" y1="268" x2="180" y2="258" stroke="#34d399" stroke-width="1"/>
+
+        <text x="405" y="252" fill="#fbbf24" font-size="13" font-weight="600">Transversal</text>
+        <line x1="450" y1="256" x2="440" y2="260" stroke="#fbbf24" stroke-width="1"/>
+      </svg>
+      <div class="click-hint">🖱️ Haz clic en cada línea de color para ver detalles</div>
+      <div class="legend">
+        <div class="legend-item" data-plane="sagital">
+          <span class="legend-dot" style="background:#f472b6"></span> Sagital
+        </div>
+        <div class="legend-item" data-plane="frontal">
+          <span class="legend-dot" style="background:#34d399"></span> Frontal (Coronal)
+        </div>
+        <div class="legend-item" data-plane="transversal">
+          <span class="legend-dot" style="background:#fbbf24"></span> Transversal
+        </div>
+      </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <!-- Cards de planos -->
+    <div class="cards">
+      <div class="card card-sagital" id="card-sagital">
+        <div class="accent-bar"></div>
+        <div class="card-icon">⬌</div>
+        <h3>Plano Sagital</h3>
+        <p>Divide el cuerpo en <strong>izquierda y derecha</strong>. El plano <em>mediosagital</em> pasa exactamente por la línea media; los planos <em>parasagitales</em> son paralelos a él.</p>
+        <p style="margin-top:0.75rem;color:var(--sagital);font-size:0.85rem;"><strong>Movimientos:</strong> Flexión y extensión</p>
+      </div>
+
+      <div class="card card-frontal" id="card-frontal">
+        <div class="accent-bar"></div>
+        <div class="card-icon">⬍</div>
+        <h3>Plano Frontal (Coronal)</h3>
+        <p>Divide el cuerpo en <strong>anterior (ventral) y posterior (dorsal)</strong>. Es perpendicular al plano sagital.</p>
+        <p style="margin-top:0.75rem;color:var(--frontal);font-size:0.85rem;"><strong>Movimientos:</strong> Abducción y aducción</p>
+      </div>
+
+      <div class="card card-transversal" id="card-transversal">
+        <div class="accent-bar"></div>
+        <div class="card-icon">⬏</div>
+        <h3>Plano Transversal (Axial)</h3>
+        <p>Divide el cuerpo en <strong>superior (craneal) e inferior (caudal)</strong>. Es perpendicular a los otros dos planos.</p>
+        <p style="margin-top:0.75rem;color:var(--transversal);font-size:0.85rem;"><strong>Movimientos:</strong> Rotación, pronación y supinación</p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>💡 Dato clave:</strong> Los tres planos son <strong>perpendiculares entre sí</strong>. 
+      Cualquier punto del cuerpo puede describirse con referencia a estos tres planos, 
+      formando un sistema de coordenadas anatómico.
+    </div>
+  </section>
+
+  <!-- ═══════════ EJES ═══════════ -->
+  <section class="section" id="ejes">
+    <h2>📏 Los 3 Ejes Anatómicos</h2>
+    <p style="color:var(--muted);margin-bottom:1.5rem;">
+      Cada eje es <strong>perpendicular a un plano</strong> y define la dirección 
+      en la que ocurren los movimientos articulares.
+    </p>
+
+    <div class="info-box">
+      <strong>🔗 Relación Plano ↔ Eje:</strong>
+      <ul>
+        <li>El movimiento ocurre <strong>en un plano</strong></li>
+        <li>El movimiento ocurre <strong>alrededor de un eje</strong></li>
+        <li>El eje es <strong>perpendicular</strong> al plano del movimiento</li>
+      </ul>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Eje</th>
+          <th>Orientación</th>
+          <th>Plano asociado</th>
+          <th>Movimientos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:#fbbf24;font-weight:600;">Transversal<br><span style="font-size:0.8rem;">(Laterolateral)</span></td>
+          <td>De lado a lado</td>
+          <td>Sagital</td>
+          <td>Flexión / Extensión</td>
+        </tr>
+        <tr>
+          <td style="color:#f472b6;font-weight:600;">Anteroposterior<br><span style="font-size:0.8rem;">(Sagital)</span></td>
+          <td>De adelante hacia atrás</td>
+          <td>Frontal</td>
+          <td>Abducción / Aducción</td>
+        </tr>
+        <tr>
+          <td style="color:#34d399;font-weight:600;">Longitudinal<br><span style="font-size:0.8rem;">(Vertical / Craneocaudal)</span></td>
+          <td>De arriba hacia abajo</td>
+          <td>Transversal</td>
+          <td>Rotación interna y externa</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Mini diagrama de ejes -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 400 500" width="400" height="500" xmlns="http://www.w3.org/2000/svg">
+        <!-- Figura palito -->
+        <circle cx="200" cy="60" r="28" fill="none" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="200" y1="88" x2="200" y2="280" stroke="#64748b" stroke-width="2"/>
+        <line x1="200" y1="130" x2="150" y2="230" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="200" y1="130" x2="250" y2="230" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="200" y1="280" x2="165" y2="430" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="200" y1="280" x2="235" y2="430" stroke="#64748b" stroke-width="1.5"/>
+
+        <!-- Eje Transversal (laterolateral) -->
+        <line x1="120" y1="200" x2="280" y2="200" stroke="#fbbf24" stroke-width="2.5" marker-end="url(#arrowYellow)"/>
+        <defs>
+          <marker id="arrowYellow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#fbbf24"/>
+          </marker>
+          <marker id="arrowPink" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#f472b6"/>
+          </marker>
+          <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#34d399"/>
+          </marker>
+        </defs>
+
+        <!-- Eje Anteroposterior -->
+        <line x1="200" y1="200" x2="200" y2="200" stroke="#f472b6" stroke-width="2.5"/>
+        <circle cx="200" cy="200" r="3" fill="#f472b6"/>
+        <text x="260" y="196" fill="#f472b6" font-size="11">Anteroposterior ⊙</text>
+
+        <!-- Eje Longitudinal -->
+        <line x1="200" y1="380" x2="200" y2="80" stroke="#34d399" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+        <text x="208" y="100" fill="#34d399" font-size="11">Longitudinal</text>
+
+        <!-- Eje Transversal label -->
+        <text x="150" y="194" fill="#fbbf24" font-size="11" text-anchor="end">Transversal</text>
+      </svg>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.5rem;">
+        ⊙ El eje anteroposterior es perpendicular a la pantalla (entra/sale)
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>🧠 Para recordar:</strong>
+      Cada movimiento articular se describe según el <strong>plano</strong> en el que se realiza 
+      y el <strong>eje</strong> alrededor del cual gira. Por ejemplo: la flexión del codo ocurre 
+      en el plano <strong>sagital</strong> alrededor del eje <strong>transversal</strong>.
+    </div>
+  </section>
+
+  <!-- ═══════════ QUIZ ═══════════ -->
+  <section class="section" id="quiz">
+    <h2>🧠 Quiz: ¿Cuánto sabes?</h2>
+    <p style="color:var(--muted);margin-bottom:1.5rem;">
+      Pon a prueba tu conocimiento sobre planos y ejes anatómicos.
+    </p>
+
+    <div id="quiz-container"></div>
+    <div class="quiz-score" id="quiz-score" style="display:none;">
+      Puntaje: <span id="score-value">0</span>/5
+    </div>
+    <div style="text-align:center;">
+      <button class="btn" id="quiz-restart" style="display:none;" onclick="startQuiz()">🔄 Reiniciar Quiz</button>
+    </div>
+  </section>
+
+  <!-- ═══════════ FLASHCARDS ═══════════ -->
+  <section class="section" id="flashcards">
+    <h2>🃏 Flashcards</h2>
+    <p style="color:var(--muted);margin-bottom:1.5rem;">
+      Toca cada tarjeta para voltearla y ver la respuesta.
+    </p>
+    <div class="flashcard-grid" id="flashcard-grid"></div>
+    <div style="text-align:center;margin-top:1rem;">
+      <button class="btn" onclick="resetFlashcards()">🔄 Voltear todas</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── Navegación ──
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.section).classList.add('active');
+  });
+});
+
+// ── Tooltip interactivo ──
+const tooltip = document.getElementById('tooltip');
+const planeInfo = {
+  'plane-sagital': {
+    title: 'Plano Sagital',
+    desc: 'Divide el cuerpo en izquierda y derecha. El plano mediosagital pasa por la línea media.',
+    color: '#f472b6'
+  },
+  'plane-frontal': {
+    title: 'Plano Frontal (Coronal)',
+    desc: 'Divide el cuerpo en anterior (ventral) y posterior (dorsal).',
+    color: '#34d399'
+  },
+  'plane-transversal': {
+    title: 'Plano Transversal (Axial)',
+    desc: 'Divide el cuerpo en superior (craneal) e inferior (caudal).',
+    color: '#fbbf24'
+  }
+};
+
+const planes = ['plane-sagital', 'plane-frontal', 'plane-transversal'];
+
+planes.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  el.addEventListener('mouseenter', (e) => {
+    const info = planeInfo[id];
+    tooltip.innerHTML = `<strong style="color:${info.color}">${info.title}</strong><br><span style="color:#cbd5e1">${info.desc}</span>`;
+    tooltip.classList.add('show');
+  });
+
+  el.addEventListener('mousemove', (e) => {
+    tooltip.style.left = (e.clientX + 18) + 'px';
+    tooltip.style.top = (e.clientY - 40) + 'px';
+  });
+
+  el.addEventListener('mouseleave', () => {
+    tooltip.classList.remove('show');
+  });
+
+  el.addEventListener('click', () => {
+    const info = planeInfo[id];
+    const cardId = id === 'plane-sagital' ? 'card-sagital' : 
+                    id === 'plane-frontal' ? 'card-frontal' : 'card-transversal';
+    
+    // Scroll to card
+    const card = document.getElementById(cardId);
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.style.borderColor = info.color;
+      card.style.boxShadow = `0 0 30px ${info.color}33`;
+      setTimeout(() => {
+        card.style.borderColor = 'var(--border)';
+        card.style.boxShadow = 'none';
+      }, 2000);
+    }
+  });
+});
+
+// Legend items click → highlight plane
+document.querySelectorAll('.legend-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const planeKey = item.dataset.plane;
+    const planeEl = document.getElementById(
+      planeKey === 'sagital' ? 'plane-sagital' : 
+      planeKey === 'frontal' ? 'plane-frontal' : 'plane-transversal'
+    );
+    if (planeEl) {
+      planeEl.classList.add('highlight-pulse');
+      planeEl.style.strokeWidth = '5';
+      setTimeout(() => {
+        planeEl.classList.remove('highlight-pulse');
+        planeEl.style.strokeWidth = '3';
+      }, 4500);
+    }
+  });
+});
+
+// ── Quiz ──
+const quizQuestions = [
+  {
+    q: '¿Qué plano divide el cuerpo en izquierda y derecha?',
+    options: ['Plano Frontal', 'Plano Sagital', 'Plano Transversal', 'Plano Oblicuo'],
+    answer: 1
+  },
+  {
+    q: 'El plano frontal (coronal) divide el cuerpo en:',
+    options: [
+      'Superior e inferior',
+      'Izquierda y derecha',
+      'Anterior y posterior',
+      'Proximal y distal'
+    ],
+    answer: 2
+  },
+  {
+    q: '¿Alrededor de qué eje ocurre la flexión y extensión?',
+    options: [
+      'Eje Longitudinal',
+      'Eje Anteroposterior',
+      'Eje Transversal',
+      'Eje Oblicuo'
+    ],
+    answer: 2
+  },
+  {
+    q: 'El movimiento de rotación ocurre en el plano:',
+    options: ['Sagital', 'Frontal', 'Transversal', 'Parasagital'],
+    answer: 2
+  },
+  {
+    q: '¿Qué eje es perpendicular al plano frontal?',
+    options: [
+      'Eje Transversal',
+      'Eje Anteroposterior',
+      'Eje Longitudinal',
+      'Eje Craneocaudal'
+    ],
+    answer: 1
+  }
+];
+
+let score = 0;
+let answered = 0;
+
+function startQuiz() {
+  score = 0;
+  answered = 0;
+  const container = document.getElementById('quiz-container');
+  const scoreEl = document.getElementById('quiz-score');
+  const restartBtn = document.getElementById('quiz-restart');
+  
+  scoreEl.style.display = 'none';
+  restartBtn.style.display = 'none';
+  
+  container.innerHTML = quizQuestions.map((q, i) => `
+    <div class="quiz-question" id="q${i}">
+      <p>${i + 1}. ${q.q}</p>
+      <div class="quiz-options">
+        ${q.options.map((opt, j) => `
+          <button class="quiz-option" onclick="answerQuiz(${i}, ${j})">${opt}</button>
+        `).join('')}
+      </div>
+      <div class="quiz-feedback" id="feedback${i}"></div>
+    </div>
+  `).join('');
+}
+
+function answerQuiz(qIndex, optIndex) {
+  const q = quizQuestions[qIndex];
+  const feedback = document.getElementById('feedback' + qIndex);
+  const buttons = document.querySelectorAll(`#q${qIndex} .quiz-option`);
+  
+  // Prevent double-answering
+  if (buttons[0].disabled) return;
+  
+  buttons.forEach(b => b.disabled = true);
+  
+  // Highlight correct answer
+  buttons[q.answer].classList.add('correct');
+  
+  if (optIndex === q.answer) {
+    score++;
+    feedback.textContent = '✅ ¡Correcto!';
+    feedback.style.color = 'var(--correct)';
+  } else {
+    buttons[optIndex].classList.add('wrong');
+    feedback.textContent = '❌ Intenta de nuevo en la siguiente ronda';
+    feedback.style.color = 'var(--wrong)';
+  }
+  
+  answered++;
+  
+  if (answered === quizQuestions.length) {
+    const scoreEl = document.getElementById('quiz-score');
+    const restartBtn = document.getElementById('quiz-restart');
+    scoreEl.style.display = 'block';
+    document.getElementById('score-value').textContent = score;
+    restartBtn.style.display = 'inline-block';
+    
+    if (score === 5) {
+      scoreEl.innerHTML = '🏆 ¡Perfecto! Puntaje: <span>' + score + '</span>/5';
+    } else if (score >= 3) {
+      scoreEl.innerHTML = '👍 Nada mal. Puntaje: <span>' + score + '</span>/5';
+    } else {
+      scoreEl.innerHTML = '📚 Sigue estudiando. Puntaje: <span>' + score + '</span>/5';
+    }
+  }
+}
+
+startQuiz();
+
+// ── Flashcards ──
+const flashcards = [
+  { front: 'Plano Sagital', back: 'Divide el cuerpo en izquierda y derecha' },
+  { front: 'Plano Frontal (Coronal)', back: 'Divide en anterior (ventral) y posterior (dorsal)' },
+  { front: 'Plano Transversal', back: 'Divide en superior (craneal) e inferior (caudal)' },
+  { front: 'Eje Transversal', back: 'Va de lado a lado. Perpendicular al plano sagital. Flexión/extensión.' },
+  { front: 'Eje Anteroposterior', back: 'Va de adelante hacia atrás. Perpendicular al plano frontal. Abducción/aducción.' },
+  { front: 'Eje Longitudinal', back: 'Va de arriba hacia abajo. Perpendicular al plano transversal. Rotaciones.' },
+  { front: 'Flexión', back: 'Disminuye el ángulo articular. Ocurre en plano SAGITAL.' },
+  { front: 'Abducción', back: 'Aleja de la línea media. Ocurre en plano FRONTAL.' },
+  { front: 'Posición Anatómica', back: 'De pie, mirando al frente, brazos a los lados, palmas hacia adelante.' },
+  { front: 'Mediosagital', back: 'Plano sagital que pasa exactamente por la línea media del cuerpo.' },
+  { front: 'Rotación interna', back: 'Giro hacia la línea media. Ocurre en plano TRANSVERSAL.' },
+  { front: 'Supinación', back: 'Palma hacia arriba/adelante. Movimiento en plano TRANSVERSAL.' }
+];
+
+const flashcardGrid = document.getElementById('flashcard-grid');
+
+function renderFlashcards() {
+  flashcardGrid.innerHTML = flashcards.map((fc, i) => `
+    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+      <div class="flashcard-inner">
+        <div class="flashcard-front">
+          <div>
+            ${fc.front}
+            <div class="flashcard-hint">Toca para ver</div>
+          </div>
+        </div>
+        <div class="flashcard-back">${fc.back}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function resetFlashcards() {
+  document.querySelectorAll('.flashcard').forEach(card => card.classList.remove('flipped'));
+}
+
+renderFlashcards();
+</script>
+</body>
+</html>
