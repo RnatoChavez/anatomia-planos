@@ -851,7 +851,7 @@ function init3D() {
       });
       
       // Conectar cubo de vistas (animación suave + centrado perfecto)
-      const cubeDist = 11;
+      const cubeDist = 14;
       const headOffset = 0; // cámara a la altura del target
       document.querySelectorAll('#cube3d div[data-view]').forEach(face => {
         face.onclick = () => {
@@ -876,7 +876,7 @@ function init3D() {
         isoBtn.onclick = () => {
           const t = new THREE.Vector3(0, mCenter.y - mSize.y * 0.06, 0);
           controls.target.copy(t);
-          const isoDist = 12;
+          const isoDist = 14;
           // Ángulo isométrico: 45° horizontal, 35.26° vertical
           const angleH = Math.PI / 4;
           const angleV = Math.atan(Math.sin(Math.PI/6));
