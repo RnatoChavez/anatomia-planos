@@ -647,8 +647,8 @@
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
   }
 }
 </script>
@@ -666,8 +666,10 @@ let viewControls = null;
 function init3D() {
   if (threeInited) return;
   const container = document.getElementById('three-canvas');
-  if (!container || container.offsetWidth === 0) return;
+  if (!container || container.offsetWidth === 0 || container.offsetHeight === 0) return;
   threeInited = true;
+
+  console.log('🧬 Iniciando visor 3D...');
 
   const W = container.clientWidth;
   const H = container.clientHeight;
@@ -931,7 +933,18 @@ function init3D() {
 }
 
 // Iniciar 3D al cargar la página (el visor está en la sección Planos, activa por defecto)
-setTimeout(init3D, 300);
+// Esperar a que el layout esté listo
+let initAttempts = 0;
+function tryInit3D() {
+  const container = document.getElementById('three-canvas');
+  if (container && container.offsetWidth > 0 && container.offsetHeight > 0) {
+    init3D();
+  } else if (initAttempts < 20) {
+    initAttempts++;
+    setTimeout(tryInit3D, 250);
+  }
+}
+setTimeout(tryInit3D, 400);
 </script>
 
 <script>
