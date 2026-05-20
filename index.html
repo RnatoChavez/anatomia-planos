@@ -841,9 +841,9 @@ function init3D() {
       const mSize = modelBox.getSize(new THREE.Vector3());
       const mCenter = modelBox.getCenter(new THREE.Vector3());
       
-      const planeH = mSize.y * 1.25;  // 25% más alto que el modelo
-      const planeW = mSize.x * 1.4;   // 40% más ancho
-      const waistY = mCenter.y - mSize.y * 0.12; // cintura (~12% abajo del centro)
+      const planeH = mSize.y * 1.12;  // 12% más alto que el modelo
+      const planeW = mSize.x * 1.18;  // 18% más ancho
+      const waistY = mCenter.y + mSize.y * 0.08; // cintura (sobre el centro)
       
       // Sagital (rosa) - XY, divide izq/der
       const sagitalGeo = new THREE.PlaneGeometry(planeW, planeH);
@@ -883,7 +883,7 @@ function init3D() {
       scene.add(frontalEdge);
 
       // Transversal (amarillo) - horizontal a la altura de la cintura
-      const transGeo = new THREE.PlaneGeometry(planeW * 1.1, planeW * 1.05);
+      const transGeo = new THREE.PlaneGeometry(planeW * 1.05, planeW);
       const transMat = new THREE.MeshStandardMaterial({ 
         color: '#fbbf24', transparent: true, opacity: 0.2, 
         side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
@@ -895,7 +895,7 @@ function init3D() {
       scene.add(transPlane);
 
       // Anillo en la cintura
-      const ringGeo = new THREE.TorusGeometry(planeW * 0.45, 0.03, 8, 48);
+      const ringGeo = new THREE.TorusGeometry(planeW * 0.4, 0.03, 8, 48);
       const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: '#fbbf24', transparent: true, opacity: 0.6, depthTest: true }));
       ring.position.set(0, waistY, 0);
       ring.rotation.x = Math.PI / 2;
