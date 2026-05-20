@@ -435,7 +435,6 @@
   <button class="active" data-section="planos">📐 Planos</button>
   <button data-section="ejes">📏 Ejes</button>
   <button data-section="quiz">🧠 Quiz</button>
-  <button data-section="3d">🧬 3D</button>
   <button data-section="flashcards">🃏 Flashcards</button>
 </nav>
 
@@ -443,84 +442,39 @@
   <!-- ═══════════ PLANOS ═══════════ -->
   <section class="section active" id="planos">
     <h2>📐 Los 3 Planos Anatómicos</h2>
-    <p style="color:var(--muted);margin-bottom:1.5rem;">
-      Los planos anatómicos son cortes imaginarios que dividen el cuerpo para describir
-      posiciones, movimientos y relaciones entre estructuras. Pasa el cursor sobre cada plano en el diagrama.
+    <p style="color:var(--muted);margin-bottom:0.5rem;">
+      Los planos anatómicos son cortes imaginarios que dividen el cuerpo. 
+      <strong>Gira el modelo 3D</strong> para verlos desde cualquier ángulo, o usa los botones para mostrar/ocultar cada plano.
     </p>
 
-    <!-- Diagrama interactivo SVG -->
-    <div class="diagram-container" id="diagram-box">
-      <svg viewBox="40 0 580 560" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="glowS"><feGaussianBlur stdDeviation="3"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="glowF"><feGaussianBlur stdDeviation="2.5"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="glowT"><feGaussianBlur stdDeviation="2.5"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <radialGradient id="bodyFill" cx="50%" cy="40%">
-            <stop offset="0%" stop-color="#64748b"/>
-            <stop offset="100%" stop-color="#1e293b"/>
-          </radialGradient>
-        </defs>
-
-        <!-- CUERPO HUMANO (gris oscuro visible sobre fondo oscuro) -->
-        <!-- Cabeza -->
-        <ellipse cx="330" cy="65" rx="36" ry="43" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="2"/>
-        <!-- Ojos -->
-        <circle cx="320" cy="58" r="3.5" fill="#cbd5e1"/>
-        <circle cx="340" cy="58" r="3.5" fill="#cbd5e1"/>
-        <!-- Boca -->
-        <path d="M323 74 Q330 81 337 74" fill="none" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round"/>
-        <!-- Cuello -->
-        <rect x="312" y="106" width="36" height="22" rx="7" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="1.8"/>
-        <!-- Torso -->
-        <path d="M275 128 L255 300 Q280 335 330 340 Q380 335 405 300 L385 128 Z" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="2.2"/>
-        <!-- Brazos -->
-        <path d="M275 145 Q230 168 222 260 L236 263 Q240 190 278 160" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="2"/>
-        <path d="M385 145 Q430 168 438 260 L424 263 Q420 190 382 160" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="2"/>
-        <!-- Manos -->
-        <ellipse cx="229" cy="270" rx="10" ry="12" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="1.5"/>
-        <ellipse cx="431" cy="270" rx="10" ry="12" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="1.5"/>
-        <!-- Piernas -->
-        <rect x="296" y="335" width="28" height="115" rx="12" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="2"/>
-        <rect x="336" y="335" width="28" height="115" rx="12" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="2"/>
-        <!-- Pies -->
-        <ellipse cx="310" cy="458" rx="24" ry="11" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="1.5"/>
-        <ellipse cx="350" cy="458" rx="24" ry="11" fill="url(#bodyFill)" stroke="#94a3b8" stroke-width="1.5"/>
-
-        <!-- PLANO SAGITAL (rosa) - línea vertical central -->
-        <line id="plane-sagital" x1="330" y1="10" x2="330" y2="470" stroke="#f472b6" stroke-width="3.5" stroke-dasharray="10,6" opacity="0.85" class="plane-hover" style="cursor:pointer" filter="url(#glowS)"/>
-
-        <!-- PLANO FRONTAL (verde) - línea vertical lateral izquierda -->
-        <line id="plane-frontal" x1="200" y1="10" x2="200" y2="470" stroke="#34d399" stroke-width="3.5" stroke-dasharray="14,8" opacity="0.7" class="plane-hover" style="cursor:pointer" filter="url(#glowF)"/>
-
-        <!-- PLANO TRANSVERSAL (amarillo) - línea horizontal a la altura del ombligo -->
-        <line id="plane-transversal" x1="80" y1="245" x2="560" y2="245" stroke="#fbbf24" stroke-width="3.5" stroke-dasharray="8,5" opacity="0.8" class="plane-hover" style="cursor:pointer" filter="url(#glowT)"/>
-
-        <!-- ETIQUETAS -->
-        <text x="338" y="148" font-size="12" font-weight="700" fill="#f472b6" font-family="system-ui,sans-serif">Sagital</text>
-        <line x1="336" y1="152" x2="332" y2="165" stroke="#f472b6" stroke-width="1.2"/>
-
-        <text x="155" y="256" font-size="12" font-weight="700" fill="#34d399" font-family="system-ui,sans-serif" text-anchor="end">Frontal</text>
-        <line x1="158" y1="252" x2="195" y2="248" stroke="#34d399" stroke-width="1.2"/>
-
-        <text x="440" y="238" font-size="12" font-weight="700" fill="#fbbf24" font-family="system-ui,sans-serif">Transversal</text>
-        <line x1="435" y1="242" x2="420" y2="245" stroke="#fbbf24" stroke-width="1.2"/>
-      </svg>
-      <div class="click-hint">🖱️ Pasa el cursor sobre cada línea de color para ver detalles · Haz clic para más info</div>
-      <div class="legend">
-        <div class="legend-item" data-plane="sagital">
-          <span class="legend-dot" style="background:#f472b6"></span> Sagital
-        </div>
-        <div class="legend-item" data-plane="frontal">
-          <span class="legend-dot" style="background:#34d399"></span> Frontal (Coronal)
-        </div>
-        <div class="legend-item" data-plane="transversal">
-          <span class="legend-dot" style="background:#fbbf24"></span> Transversal
-        </div>
+    <!-- Visor 3D como diagrama principal -->
+    <div class="diagram-container" id="container3d" style="padding:0;overflow:hidden;min-height:440px;position:relative;background:#1a1a2e;">
+      <div id="three-canvas" style="width:100%;height:440px;cursor:grab;"></div>
+      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#94a3b8;font-size:0.8rem;pointer-events:none;">
+        🖱️ Arrastra para girar · Scroll para zoom · Click derecho para mover
       </div>
-      <div style="color:var(--muted);font-size:0.75rem;margin-top:0.5rem;">
-        Diagrama basado en «Planos anatómicos» por <a href="https://commons.wikimedia.org/wiki/File:Planos_anat%C3%B3micos.svg" target="_blank" style="color:var(--accent);">Edoarado</a>, CC BY-SA 3.0
+      <div id="viewcube" style="position:absolute;bottom:14px;right:14px;width:64px;height:64px;perspective:300px;z-index:10;">
+        <div id="cube3d" style="width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.4s ease;">
+          <div data-view="front" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:7px;font-weight:700;cursor:pointer;transform:translateZ(32px);text-align:center;">FRENTE</div>
+          <div data-view="back" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:7px;font-weight:700;cursor:pointer;transform:rotateY(180deg) translateZ(32px);text-align:center;">POST.</div>
+          <div data-view="right" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:6.5px;font-weight:700;cursor:pointer;transform:rotateY(90deg) translateZ(32px);text-align:center;">PERFIL<br>DER</div>
+          <div data-view="left" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:6.5px;font-weight:700;cursor:pointer;transform:rotateY(-90deg) translateZ(32px);text-align:center;">PERFIL<br>IZQ</div>
+          <div data-view="top" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:7px;font-weight:700;cursor:pointer;transform:rotateX(-90deg) translateZ(32px);text-align:center;">SUP.</div>
+          <div data-view="bottom" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:7px;font-weight:700;cursor:pointer;transform:rotateX(90deg) translateZ(32px);text-align:center;">INF.</div>
+        </div>
       </div>
     </div>
+
+    <div style="display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
+      <button id="btn-sagital" class="plane-toggle active" style="background:#f472b620;border:2px solid #f472b6;color:#f472b6;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟣 Sagital</button>
+      <button id="btn-frontal" class="plane-toggle active" style="background:#34d39920;border:2px solid #34d399;color:#34d399;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟢 Frontal</button>
+      <button id="btn-transversal" class="plane-toggle active" style="background:#fbbf2420;border:2px solid #fbbf24;color:#fbbf24;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟡 Transversal</button>
+    </div>
+
+    <style>
+      .plane-toggle.inactive { opacity:0.35; border-style:dashed; background:transparent!important; }
+      #cube3d div:hover { background:#334155!important; border-color:#38bdf8!important; }
+    </style>
 
     <!-- Tooltip -->
     <div class="tooltip" id="tooltip"></div>
@@ -670,49 +624,6 @@
     </div>
     <div style="text-align:center;">
       <button class="btn" id="quiz-restart" style="display:none;" onclick="startQuiz()">🔄 Reiniciar Quiz</button>
-    </div>
-  </section>
-
-  <!-- ═══════════ 3D ═══════════ -->
-  <section class="section" id="3d">
-    <h2>🧬 Visor 3D Interactivo</h2>
-    <p style="color:var(--muted);margin-bottom:1rem;">
-      Gira, haz zoom y explora los planos anatómicos en 3D. Cada plano está representado por un panel semitransparente de color.
-    </p>
-
-    <div class="diagram-container" id="container3d" style="padding:0;overflow:hidden;min-height:420px;position:relative;background:#1a1a2e;">
-      <div id="three-canvas" style="width:100%;height:420px;cursor:grab;"></div>
-      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#94a3b8;font-size:0.8rem;pointer-events:none;">
-        🖱️ Arrastra para girar · Scroll para zoom · Click derecho para mover
-      </div>
-      <!-- Cubo de vistas estilo AutoCAD -->
-      <div id="viewcube" style="position:absolute;bottom:14px;right:14px;width:64px;height:64px;perspective:300px;z-index:10;">
-        <div id="cube3d" style="width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.4s ease;">
-          <div data-view="front" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:7px;font-weight:700;cursor:pointer;transform:translateZ(32px);text-align:center;">FRENTE</div>
-          <div data-view="back" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:7px;font-weight:700;cursor:pointer;transform:rotateY(180deg) translateZ(32px);text-align:center;">POST.</div>
-          <div data-view="right" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:6.5px;font-weight:700;cursor:pointer;transform:rotateY(90deg) translateZ(32px);text-align:center;">PERFIL<br>DER</div>
-          <div data-view="left" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:6.5px;font-weight:700;cursor:pointer;transform:rotateY(-90deg) translateZ(32px);text-align:center;">PERFIL<br>IZQ</div>
-          <div data-view="top" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:7px;font-weight:700;cursor:pointer;transform:rotateX(-90deg) translateZ(32px);text-align:center;">SUP.</div>
-          <div data-view="bottom" style="position:absolute;inset:0;background:#1e293b;border:1px solid #475569;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font-size:7px;font-weight:700;cursor:pointer;transform:rotateX(90deg) translateZ(32px);text-align:center;">INF.</div>
-        </div>
-      </div>
-    </div>
-
-    <div style="display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
-      <button id="btn-sagital" class="plane-toggle active" style="background:#f472b620;border:2px solid #f472b6;color:#f472b6;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟣 Sagital</button>
-      <button id="btn-frontal" class="plane-toggle active" style="background:#34d39920;border:2px solid #34d399;color:#34d399;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟢 Frontal</button>
-      <button id="btn-transversal" class="plane-toggle active" style="background:#fbbf2420;border:2px solid #fbbf24;color:#fbbf24;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟡 Transversal</button>
-    </div>
-
-    <style>
-      .plane-toggle.inactive { opacity:0.35; border-style:dashed; background:transparent!important; }
-      #cube3d div:hover { background:#334155!important; border-color:#38bdf8!important; }
-    </style>
-
-    <div class="info-box" style="margin-top:1.5rem;">
-      <strong>💡 En 3D se entiende mejor:</strong> gira el modelo para ver cómo el plano <strong style="color:#f472b6">sagital</strong> 
-      atraviesa el cuerpo de adelante hacia atrás, el <strong style="color:#34d399">frontal</strong> de lado a lado, 
-      y el <strong style="color:#fbbf24">transversal</strong> lo corta horizontalmente. Los tres son perpendiculares entre sí.
     </div>
   </section>
 
@@ -995,17 +906,8 @@ function init3D() {
   });
 }
 
-// Iniciar 3D cuando se active la pestaña
-const nav3d = document.querySelector('[data-section="3d"]');
-if (nav3d) {
-  nav3d.addEventListener('click', () => {
-    setTimeout(init3D, 200);
-  });
-}
-// También por si cargan directo con hash
-setTimeout(() => {
-  if (document.getElementById('3d')?.classList.contains('active')) init3D();
-}, 500);
+// Iniciar 3D al cargar la página (el visor está en la sección Planos, activa por defecto)
+setTimeout(init3D, 300);
 </script>
 
 <script>
@@ -1016,89 +918,6 @@ document.querySelectorAll('nav button').forEach(btn => {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.section).classList.add('active');
-  });
-});
-
-// ── Tooltip interactivo ──
-const tooltip = document.getElementById('tooltip');
-const planeInfo = {
-  'plane-sagital': {
-    title: 'Plano Sagital',
-    desc: 'Divide el cuerpo en izquierda y derecha. El plano mediosagital pasa por la línea media.',
-    color: '#f472b6'
-  },
-  'plane-frontal': {
-    title: 'Plano Frontal (Coronal)',
-    desc: 'Divide el cuerpo en anterior (ventral) y posterior (dorsal).',
-    color: '#34d399'
-  },
-  'plane-transversal': {
-    title: 'Plano Transversal (Axial)',
-    desc: 'Divide el cuerpo en superior (craneal) e inferior (caudal).',
-    color: '#fbbf24'
-  }
-};
-
-const planes = ['plane-sagital', 'plane-frontal', 'plane-transversal'];
-
-planes.forEach(id => {
-  const el = document.getElementById(id);
-  if (!el) return;
-
-  // Ampliar zona clickeable con stroke-width en hover
-  el.addEventListener('mouseenter', (e) => {
-    const info = planeInfo[id];
-    tooltip.innerHTML = `<strong style="color:${info.color}">${info.title}</strong><br><span style="color:#cbd5e1">${info.desc}</span>`;
-    tooltip.classList.add('show');
-    el.style.strokeWidth = '8';
-    el.style.opacity = '1';
-  });
-
-  el.addEventListener('mousemove', (e) => {
-    tooltip.style.left = (e.clientX + 18) + 'px';
-    tooltip.style.top = (e.clientY - 40) + 'px';
-  });
-
-  el.addEventListener('mouseleave', () => {
-    tooltip.classList.remove('show');
-    el.style.strokeWidth = '3.5';
-    el.style.opacity = '';
-  });
-
-  el.addEventListener('click', () => {
-    const info = planeInfo[id];
-    const cardId = id === 'plane-sagital' ? 'card-sagital' : 
-                    id === 'plane-frontal' ? 'card-frontal' : 'card-transversal';
-    
-    const card = document.getElementById(cardId);
-    if (card) {
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      card.style.borderColor = info.color;
-      card.style.boxShadow = `0 0 30px ${info.color}33`;
-      setTimeout(() => {
-        card.style.borderColor = 'var(--border)';
-        card.style.boxShadow = 'none';
-      }, 2000);
-    }
-  });
-});
-
-// Legend items click → highlight plane
-document.querySelectorAll('.legend-item').forEach(item => {
-  item.addEventListener('click', () => {
-    const planeKey = item.dataset.plane;
-    const planeEl = document.getElementById(
-      planeKey === 'sagital' ? 'plane-sagital' : 
-      planeKey === 'frontal' ? 'plane-frontal' : 'plane-transversal'
-    );
-    if (planeEl) {
-      planeEl.classList.add('highlight-pulse');
-      planeEl.style.strokeWidth = '5';
-      setTimeout(() => {
-        planeEl.classList.remove('highlight-pulse');
-        planeEl.style.strokeWidth = '3';
-      }, 4500);
-    }
   });
 });
 
