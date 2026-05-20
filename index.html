@@ -770,9 +770,9 @@ function init3D() {
       const modelBox = new THREE.Box3().setFromObject(modelGroup);
       const mSize = modelBox.getSize(new THREE.Vector3());
       const mCenter = modelBox.getCenter(new THREE.Vector3());
-      const fitDist = Math.max(mSize.x, mSize.y, mSize.z) * 2.0;
+      const fitDist = Math.max(mSize.x, mSize.y, mSize.z) * 1.5;
       camera.position.set(mCenter.x, mCenter.y, mCenter.z + fitDist);
-      controls.target.copy(mCenter);
+      controls.target.set(mCenter.x, mCenter.y - mSize.y * 0.10, mCenter.z);
       controls.update();
 
       // ── CREAR PLANOS basados en el tamaño REAL del modelo ──
@@ -857,12 +857,12 @@ function init3D() {
       });
       
       // Conectar cubo de vistas (animación suave + centrado perfecto)
-      const cubeDist = 14;
+      const cubeDist = Math.max(mSize.x, mSize.y, mSize.z) * 1.5;
       const headOffset = 0; // cámara a la altura del target
       document.querySelectorAll('#cube3d div[data-view]').forEach(face => {
         face.onclick = () => {
           // target ligeramente bajo para enmarcar bien
-          const target = new THREE.Vector3(0, mCenter.y - mSize.y * 0.06, 0);
+          const target = new THREE.Vector3(mCenter.x, mCenter.y - mSize.y * 0.10, mCenter.z);
           controls.target.copy(target);
           switch(face.dataset.view) {
             case 'front':  camera.position.set(target.x, target.y + headOffset, target.z + cubeDist); break;
@@ -880,9 +880,9 @@ function init3D() {
       const isoBtn = document.getElementById('btn-iso');
       if (isoBtn) {
         isoBtn.onclick = () => {
-          const t = new THREE.Vector3(0, mCenter.y - mSize.y * 0.06, 0);
+          const t = new THREE.Vector3(mCenter.x, mCenter.y - mSize.y * 0.10, mCenter.z);
           controls.target.copy(t);
-          const isoDist = 14;
+          const isoDist = Math.max(mSize.x, mSize.y, mSize.z) * 1.5;
           // Ángulo isométrico: 45° horizontal, 35.26° vertical
           const angleH = Math.PI / 4;
           const angleV = Math.atan(Math.sin(Math.PI/6));
