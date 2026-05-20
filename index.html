@@ -731,6 +731,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Solo iniciar Three.js cuando la sección 3D esté visible
 let threeInited = false;
@@ -750,8 +751,8 @@ function init3D() {
 
   // Cámara
   const camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 100);
-  camera.position.set(7, 3.8, 8);
-  camera.lookAt(0, 2.0, 0);
+  camera.position.set(7, 3.2, 8);
+  camera.lookAt(0, 1.5, 0);
 
   // Renderer
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -762,7 +763,7 @@ function init3D() {
 
   // Controles
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, 1.8, 0);
+  controls.target.set(0, 1.5, 0);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
   controls.minDistance = 4;
@@ -804,149 +805,53 @@ function init3D() {
   sub.position.set(0, 1, 4);
   scene.add(sub);
 
-  // Material cuerpo - piel más realista
-  const skinMat = new THREE.MeshStandardMaterial({ 
-    color: '#e8b88a', roughness: 0.55, metalness: 0.02 
-  });
-  const skinDark = new THREE.MeshStandardMaterial({ 
-    color: '#c4956b', roughness: 0.55, metalness: 0.02 
-  });
-  const pantMat = new THREE.MeshStandardMaterial({ color: '#2d3a4a', roughness: 0.6, metalness: 0.05 });
+  // ── CARGAR MODELO 3D REAL DESDE GITHUB ──
+  const modelGroup = new THREE.Group();
+  scene.add(modelGroup);
 
-  const bodyGroup = new THREE.Group();
+  const loaderDiv = document.createElement('div');
+  loaderDiv.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#94a3b8;font-size:1rem;z-index:5;pointer-events:none;';
+  loaderDiv.textContent = '⏳ Cargando modelo 3D...';
+  container.appendChild(loaderDiv);
 
-  // ── CABEZA (LatheGeometry, perfil orgánico) ──
-  const headProfile = [
-    new THREE.Vector2(0, -0.48),   // barbilla
-    new THREE.Vector2(0.08, -0.42),
-    new THREE.Vector2(0.18, -0.2), // mandíbula
-    new THREE.Vector2(0.30, 0.0),  // pómulos
-    new THREE.Vector2(0.35, 0.15), // sienes
-    new THREE.Vector2(0.36, 0.3),  // frente
-    new THREE.Vector2(0.32, 0.45), // coronilla
-    new THREE.Vector2(0.18, 0.52),
-    new THREE.Vector2(0, 0.55)     // top
-  ];
-  const headGeo = new THREE.LatheGeometry(headProfile, 40);
-  const head = new THREE.Mesh(headGeo, skinMat);
-  head.position.y = 3.78;
-  head.castShadow = true;
-  head.receiveShadow = true;
-  bodyGroup.add(head);
+  const gltfLoader = new GLTFLoader();
+  gltfLoader.load(
+    'https://raw.githubusercontent.com/JohannsenLum/3d-models/main/human.glb',
+    (gltf) => {
+      loaderDiv.remove();
+      const model = gltf.scene;
+      // Centrar y escalar el modelo
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const scale = 5.5 / Math.max(size.x, size.y, size.z);
+      model.scale.setScalar(scale);
+      model.position.set(-center.x * scale, -center.y * scale + 0.3, -center.z * scale);
+      model.traverse((node) => {
+        if (node.isMesh) {
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
+      });
+      modelGroup.add(model);
+      document.querySelector('#container3d .click-hint')?.remove();
+    },
+    (progress) => {
+      if (progress.total) {
+        const pct = Math.round(progress.loaded / progress.total * 100);
+        loaderDiv.textContent = `⏳ Cargando... ${pct}%`;
+      }
+    },
+    (error) => {
+      loaderDiv.textContent = '⚠️ Error al cargar el modelo. Recarga la página.';
+      console.error('Error GLB:', error);
+    }
+  );
 
-  // ── CUELLO ──
-  const neckGeo = new THREE.CylinderGeometry(0.14, 0.18, 0.22, 20);
-  const neck = new THREE.Mesh(neckGeo, skinMat);
-  neck.position.y = 3.28;
-  neck.castShadow = true;
-  bodyGroup.add(neck);
-
-  // ── TORSO (LatheGeometry, forma anatómica) ──
-  const torsoProfile = [
-    new THREE.Vector2(0.18, 0),      // base cuello
-    new THREE.Vector2(0.25, 0.08),
-    new THREE.Vector2(0.42, 0.2),    // hombros
-    new THREE.Vector2(0.46, 0.35),   // pecho
-    new THREE.Vector2(0.44, 0.55),   // costillas
-    new THREE.Vector2(0.38, 0.75),   // cintura
-    new THREE.Vector2(0.40, 0.9),    // cadera
-    new THREE.Vector2(0.38, 1.0)
-  ];
-  const torsoGeo = new THREE.LatheGeometry(torsoProfile, 36);
-  torsoGeo.scale(1, 1, 0.72); // aplanar frontal
-  const torso = new THREE.Mesh(torsoGeo, skinMat);
-  torso.position.y = 2.05;
-  torso.castShadow = true;
-  torso.receiveShadow = true;
-  bodyGroup.add(torso);
-
-  // ── HOMBROS (esferas para transición suave) ──
-  function addShoulder(side) {
-    const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.19, 24, 24), skinMat);
-    shoulder.position.set(side * 0.52, 2.88, 0);
-    shoulder.scale.set(1, 0.8, 0.9);
-    shoulder.castShadow = true;
-    bodyGroup.add(shoulder);
-  }
-  addShoulder(1);
-  addShoulder(-1);
-
-  // ── BRAZOS ──
-  function addArm(side) {
-    const sx = side;
-    // Brazo superior
-    const upperGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.82, 20);
-    const upper = new THREE.Mesh(upperGeo, skinMat);
-    upper.position.set(sx * 0.75, 2.7, 0.02);
-    upper.rotation.z = sx * 0.22;
-    upper.rotation.x = -0.08;
-    upper.castShadow = true;
-    bodyGroup.add(upper);
-    
-    // Codo
-    const elbow = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), skinDark);
-    elbow.position.set(sx * 0.92, 2.03, 0.05);
-    elbow.castShadow = true;
-    bodyGroup.add(elbow);
-
-    // Antebrazo
-    const lowerGeo = new THREE.CylinderGeometry(0.10, 0.12, 0.72, 20);
-    const lower = new THREE.Mesh(lowerGeo, skinMat);
-    lower.position.set(sx * 0.95, 1.6, 0.05);
-    lower.rotation.z = sx * 0.10;
-    lower.castShadow = true;
-    bodyGroup.add(lower);
-    
-    // Mano
-    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.12, 18, 18), skinMat);
-    hand.position.set(sx * 0.88, 1.22, 0.06);
-    hand.scale.set(1, 0.75, 0.55);
-    hand.castShadow = true;
-    bodyGroup.add(hand);
-  }
-  addArm(1);
-  addArm(-1);
-
-  // ── PIERNAS (con pantalón) ──
-  function addLeg(side) {
-    const sx = side * 0.55;
-    // Muslo
-    const thighGeo = new THREE.CylinderGeometry(0.17, 0.19, 0.9, 20);
-    const thigh = new THREE.Mesh(thighGeo, pantMat);
-    thigh.position.set(sx, 1.22, 0.02);
-    thigh.castShadow = true;
-    bodyGroup.add(thigh);
-    
-    // Rodilla
-    const knee = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 16), pantMat);
-    knee.position.set(sx, 0.72, 0.03);
-    knee.castShadow = true;
-    bodyGroup.add(knee);
-
-    // Pierna inferior
-    const shinGeo = new THREE.CylinderGeometry(0.14, 0.16, 0.85, 20);
-    const shin = new THREE.Mesh(shinGeo, pantMat);
-    shin.position.set(sx, 0.24, 0.02);
-    shin.castShadow = true;
-    bodyGroup.add(shin);
-    
-    // Pie (zapato)
-    const footGeo = new THREE.BoxGeometry(0.16, 0.1, 0.33, 8, 4, 8);
-    const foot = new THREE.Mesh(footGeo, new THREE.MeshStandardMaterial({ color: '#1a1a2e', roughness: 0.3, metalness: 0.1 }));
-    foot.position.set(sx, -0.22, 0.12);
-    foot.castShadow = true;
-    foot.receiveShadow = true;
-    bodyGroup.add(foot);
-  }
-  addLeg(1);
-  addLeg(-1);
-
-  scene.add(bodyGroup);
-
-  // PLANOS SEMITRANSPARENTES (ajustados al nuevo cuerpo)
-  const planeY = 2.3;  // altura centro de planos
-  const planeH = 5.2;  // altura total de planos
-  const planeW = 2.8;  // ancho total
+  // PLANOS SEMITRANSPARENTES (ajustados al modelo cargado)
+  const planeY = 1.6;  // altura centro ajustada al modelo GLB
+  const planeH = 4.8;  // altura total de planos
+  const planeW = 2.6;  // ancho total
   
   // Sagital (rosa) - XY, divide izq/der
   const sagitalGeo = new THREE.PlaneGeometry(planeW, planeH);
@@ -994,15 +899,15 @@ function init3D() {
     side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
   });
   const transPlane = new THREE.Mesh(transGeo, transMat);
-  transPlane.position.set(0, 2.65, 0);
+  transPlane.position.set(0, 1.9, 0);
   transPlane.rotation.x = -Math.PI / 2;
   transPlane.renderOrder = 1;
   scene.add(transPlane);
 
   // Anillo transversal
-  const ringGeo = new THREE.TorusGeometry(1.15, 0.025, 8, 48);
+  const ringGeo = new THREE.TorusGeometry(1.1, 0.025, 8, 48);
   const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: '#fbbf24', transparent: true, opacity: 0.6, depthTest: true }));
-  ring.position.set(0, 2.65, 0);
+  ring.position.set(0, 1.9, 0);
   ring.rotation.x = Math.PI / 2;
   scene.add(ring);
 
