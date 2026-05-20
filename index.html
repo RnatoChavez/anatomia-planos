@@ -847,7 +847,7 @@ function init3D() {
       
       // Conectar cubo de vistas (animación suave + centrado perfecto)
       const cubeDist = 7;
-      const headOffset = mSize.y * 0.12; // compensar altura de la cabeza
+      const headOffset = mSize.y * 0.02; // casi al centro
       document.querySelectorAll('#cube3d div[data-view]').forEach(face => {
         face.onclick = () => {
           const target = new THREE.Vector3(0, mCenter.y, 0);
