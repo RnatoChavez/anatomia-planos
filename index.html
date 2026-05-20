@@ -841,9 +841,9 @@ function init3D() {
       const mSize = modelBox.getSize(new THREE.Vector3());
       const mCenter = modelBox.getCenter(new THREE.Vector3());
       
-      const planeH = mSize.y * 1.12;  // 12% más alto que el modelo
-      const planeW = mSize.x * 1.18;  // 18% más ancho
-      const waistY = mCenter.y + mSize.y * 0.08; // cintura (sobre el centro)
+      const planeH = mSize.y * 1.05;  // solo 5% más alto
+      const planeW = mSize.x * 1.05;  // solo 5% más ancho
+      const waistY = mCenter.y + mSize.y * 0.12; // cintura arriba del centro
       
       // Sagital (rosa) - XY, divide izq/der
       const sagitalGeo = new THREE.PlaneGeometry(planeW, planeH);
