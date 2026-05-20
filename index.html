@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Planos Anatómicos · Estudio Interactivo</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Planos Anatómicos · Estudio Interactivo v1.6</title>
 <style>
   :root {
     --bg: #0f172a;
@@ -428,7 +431,7 @@
 
 <header>
   <h1>Planos y Ejes Anatómicos</h1>
-  <p>Explora los planos sagital, frontal y transversal — la base del estudio anatómico</p>
+  <p>Explora los planos sagital, frontal y transversal — la base del estudio anatómico · <span style="color:var(--accent);font-size:0.8rem;">v1.6</span></p>
 </header>
 
 <nav>
@@ -679,7 +682,7 @@ function init3D() {
   scene.background = new THREE.Color('#1a1a2e');
 
   // Cámara
-  const camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 100);
+  const camera = new THREE.PerspectiveCamera(55, W/H, 0.1, 100);
   camera.position.set(7, 3.2, 12);
   camera.lookAt(0, 1.3, 0);
 
@@ -770,7 +773,7 @@ function init3D() {
       const modelBox = new THREE.Box3().setFromObject(modelGroup);
       const mSize = modelBox.getSize(new THREE.Vector3());
       const mCenter = modelBox.getCenter(new THREE.Vector3());
-      const fitDist = Math.max(mSize.x, mSize.y, mSize.z) * 1.5;
+      const fitDist = Math.max(mSize.x, mSize.y, mSize.z) * 1.3;
       camera.position.set(mCenter.x, mCenter.y, mCenter.z + fitDist);
       controls.target.set(mCenter.x, mCenter.y - mSize.y * 0.10, mCenter.z);
       controls.update();
@@ -857,7 +860,7 @@ function init3D() {
       });
       
       // Conectar cubo de vistas (animación suave + centrado perfecto)
-      const cubeDist = Math.max(mSize.x, mSize.y, mSize.z) * 1.5;
+      const cubeDist = Math.max(mSize.x, mSize.y, mSize.z) * 1.3;
       const headOffset = 0; // cámara a la altura del target
       document.querySelectorAll('#cube3d div[data-view]').forEach(face => {
         face.onclick = () => {
@@ -882,7 +885,7 @@ function init3D() {
         isoBtn.onclick = () => {
           const t = new THREE.Vector3(mCenter.x, mCenter.y - mSize.y * 0.10, mCenter.z);
           controls.target.copy(t);
-          const isoDist = Math.max(mSize.x, mSize.y, mSize.z) * 1.5;
+          const isoDist = Math.max(mSize.x, mSize.y, mSize.z) * 1.3;
           // Ángulo isométrico: 45° horizontal, 35.26° vertical
           const angleH = Math.PI / 4;
           const angleV = Math.atan(Math.sin(Math.PI/6));
