@@ -435,6 +435,7 @@
   <button class="active" data-section="planos">📐 Planos</button>
   <button data-section="ejes">📏 Ejes</button>
   <button data-section="quiz">🧠 Quiz</button>
+  <button data-section="3d">🧬 3D</button>
   <button data-section="flashcards">🃏 Flashcards</button>
 </nav>
 
@@ -672,6 +673,39 @@
     </div>
   </section>
 
+  <!-- ═══════════ 3D ═══════════ -->
+  <section class="section" id="3d">
+    <h2>🧬 Visor 3D Interactivo</h2>
+    <p style="color:var(--muted);margin-bottom:1rem;">
+      Gira, haz zoom y explora los planos anatómicos en 3D. Cada plano está representado por un panel semitransparente de color.
+    </p>
+
+    <div class="diagram-container" id="container3d" style="padding:0;overflow:hidden;min-height:420px;position:relative;background:#1a1a2e;">
+      <div id="three-canvas" style="width:100%;height:420px;cursor:grab;"></div>
+      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;color:#94a3b8;font-size:0.8rem;pointer-events:none;">
+        🖱️ Arrastra para girar · Scroll para zoom · Click derecho para mover
+      </div>
+    </div>
+
+    <div class="legend" style="margin-top:1rem;">
+      <div class="legend-item" style="cursor:default;">
+        <span class="legend-dot" style="background:#f472b6"></span> Sagital
+      </div>
+      <div class="legend-item" style="cursor:default;">
+        <span class="legend-dot" style="background:#34d399"></span> Frontal (Coronal)
+      </div>
+      <div class="legend-item" style="cursor:default;">
+        <span class="legend-dot" style="background:#fbbf24"></span> Transversal (Axial)
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top:1.5rem;">
+      <strong>💡 En 3D se entiende mejor:</strong> gira el modelo para ver cómo el plano <strong style="color:#f472b6">sagital</strong> 
+      atraviesa el cuerpo de adelante hacia atrás, el <strong style="color:#34d399">frontal</strong> de lado a lado, 
+      y el <strong style="color:#fbbf24">transversal</strong> lo corta horizontalmente. Los tres son perpendiculares entre sí.
+    </div>
+  </section>
+
   <!-- ═══════════ FLASHCARDS ═══════════ -->
   <section class="section" id="flashcards">
     <h2>🃏 Flashcards</h2>
@@ -685,6 +719,253 @@
   </section>
 
 </main>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// Solo iniciar Three.js cuando la sección 3D esté visible
+let threeInited = false;
+
+function init3D() {
+  if (threeInited) return;
+  const container = document.getElementById('three-canvas');
+  if (!container || container.offsetWidth === 0) return;
+  threeInited = true;
+
+  const W = container.clientWidth;
+  const H = container.clientHeight;
+
+  // Escena
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#1a1a2e');
+
+  // Cámara
+  const camera = new THREE.PerspectiveCamera(45, W/H, 0.1, 100);
+  camera.position.set(8, 3.5, 9);
+  camera.lookAt(0, 1.5, 0);
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  container.appendChild(renderer.domElement);
+
+  // Controles
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 1.8, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 4;
+  controls.maxDistance = 18;
+  controls.maxPolarAngle = Math.PI * 0.75;
+  controls.update();
+
+  // Luces
+  const ambient = new THREE.AmbientLight('#bae6fd', 0.6);
+  scene.add(ambient);
+  
+  const key = new THREE.DirectionalLight('#ffffff', 1.2);
+  key.position.set(8, 12, 5);
+  key.castShadow = true;
+  key.shadow.mapSize.set(512, 512);
+  scene.add(key);
+
+  const fill = new THREE.DirectionalLight('#e2e8f0', 0.4);
+  fill.position.set(-5, 2, -3);
+  scene.add(fill);
+
+  const rim = new THREE.DirectionalLight('#f472b6', 0.25);
+  rim.position.set(0, 5, -6);
+  scene.add(rim);
+
+  // Material cuerpo
+  const skinMat = new THREE.MeshStandardMaterial({ color: '#d4a574', roughness: 0.65, metalness: 0.05 });
+  const darkMat = new THREE.MeshStandardMaterial({ color: '#475569', roughness: 0.5, metalness: 0.2 });
+
+  const bodyGroup = new THREE.Group();
+
+  // Cabeza
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 32), skinMat);
+  head.position.y = 3.75;
+  head.castShadow = true;
+  bodyGroup.add(head);
+
+  // Cuello
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.21, 0.2, 16), skinMat);
+  neck.position.y = 3.3;
+  neck.castShadow = true;
+  bodyGroup.add(neck);
+
+  // Torso
+  const torsoGeo = new THREE.CylinderGeometry(0.5, 0.4, 1.6, 8, 4);
+  torsoGeo.scale(1, 1, 0.65);
+  const torso = new THREE.Mesh(torsoGeo, skinMat);
+  torso.position.y = 2.35;
+  torso.castShadow = true;
+  bodyGroup.add(torso);
+
+  // Pecho
+  const chest = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.55, 0.45), skinMat);
+  chest.position.y = 2.85;
+  chest.castShadow = true;
+  bodyGroup.add(chest);
+
+  // Brazos
+  function addArm(side) {
+    const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.15, 0.85, 12), skinMat);
+    upper.position.set(side * 0.7, 2.8, 0);
+    upper.rotation.z = side * 0.25;
+    upper.castShadow = true;
+    bodyGroup.add(upper);
+    
+    const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.75, 12), skinMat);
+    lower.position.set(side * 0.85, 2.0, 0);
+    lower.rotation.z = side * 0.15;
+    lower.castShadow = true;
+    bodyGroup.add(lower);
+    
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), skinMat);
+    hand.position.set(side * 0.78, 1.6, 0);
+    hand.castShadow = true;
+    bodyGroup.add(hand);
+  }
+  addArm(1);
+  addArm(-1);
+
+  // Piernas
+  function addLeg(side) {
+    const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.19, 1.1, 12), darkMat);
+    upper.position.set(side * 0.17, 1.15, 0);
+    upper.castShadow = true;
+    bodyGroup.add(upper);
+    
+    const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.16, 1.05, 12), darkMat);
+    lower.position.set(side * 0.17, 0.05, 0);
+    lower.castShadow = true;
+    bodyGroup.add(lower);
+    
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.35), darkMat);
+    foot.position.set(side * 0.17, -0.52, 0.1);
+    foot.castShadow = true;
+    bodyGroup.add(foot);
+  }
+  addLeg(0.55);
+  addLeg(-0.55);
+
+  scene.add(bodyGroup);
+
+  // PLANOS SEMITRANSPARENTES
+  const planeSize = 2.6;
+  
+  // Sagital (rosa) - XY, divide izq/der
+  const sagitalGeo = new THREE.PlaneGeometry(planeSize, 4.8);
+  const sagitalMat = new THREE.MeshStandardMaterial({ 
+    color: '#f472b6', transparent: true, opacity: 0.22, 
+    side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
+  });
+  const sagitalPlane = new THREE.Mesh(sagitalGeo, sagitalMat);
+  sagitalPlane.position.set(0, 2.2, 0);
+  sagitalPlane.renderOrder = 1;
+  scene.add(sagitalPlane);
+
+  // Borde sagital
+  const sagitalEdge = new THREE.Line(
+    new THREE.BoxGeometry(planeSize, 4.8, 0.01),
+    new THREE.LineBasicMaterial({ color: '#f472b6', transparent: true, opacity: 0.7, depthTest: true })
+  );
+  sagitalEdge.position.copy(sagitalPlane.position);
+  scene.add(sagitalEdge);
+
+  // Frontal (verde) - XZ, divide ant/post
+  const frontalGeo = new THREE.PlaneGeometry(planeSize, 4.8);
+  const frontalMat = new THREE.MeshStandardMaterial({ 
+    color: '#34d399', transparent: true, opacity: 0.18, 
+    side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
+  });
+  const frontalPlane = new THREE.Mesh(frontalGeo, frontalMat);
+  frontalPlane.position.set(0, 2.2, 0);
+  frontalPlane.rotation.y = Math.PI / 2;
+  frontalPlane.renderOrder = 1;
+  scene.add(frontalPlane);
+
+  // Borde frontal
+  const frontalEdge = new THREE.Line(
+    new THREE.BoxGeometry(0.01, 4.8, planeSize),
+    new THREE.LineBasicMaterial({ color: '#34d399', transparent: true, opacity: 0.7, depthTest: true })
+  );
+  frontalEdge.position.copy(frontalPlane.position);
+  scene.add(frontalEdge);
+
+  // Transversal (amarillo) - XZ, horizontal
+  const transGeo = new THREE.PlaneGeometry(planeSize, planeSize * 0.9);
+  const transMat = new THREE.MeshStandardMaterial({ 
+    color: '#fbbf24', transparent: true, opacity: 0.22, 
+    side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
+  });
+  const transPlane = new THREE.Mesh(transGeo, transMat);
+  transPlane.position.set(0, 2.4, 0);
+  transPlane.rotation.x = -Math.PI / 2;
+  transPlane.renderOrder = 1;
+  scene.add(transPlane);
+
+  // Borde transversal
+  const ringGeo = new THREE.TorusGeometry(1.1, 0.025, 8, 48);
+  const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: '#fbbf24', transparent: true, opacity: 0.6, depthTest: true }));
+  ring.position.set(0, 2.4, 0);
+  ring.rotation.x = Math.PI / 2;
+  scene.add(ring);
+
+  // Piso sutil
+  const floorGeo = new THREE.CircleGeometry(5, 32);
+  const floorMat = new THREE.MeshStandardMaterial({ color: '#0f172a', roughness: 0.9, metalness: 0, transparent: true, opacity: 0.3 });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.7;
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  // Animación
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Resize
+  window.addEventListener('resize', () => {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    if (w > 0 && h > 0) {
+      camera.aspect = w/h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+  });
+}
+
+// Iniciar 3D cuando se active la pestaña
+const nav3d = document.querySelector('[data-section="3d"]');
+if (nav3d) {
+  nav3d.addEventListener('click', () => {
+    setTimeout(init3D, 200);
+  });
+}
+// También por si cargan directo con hash
+setTimeout(() => {
+  if (document.getElementById('3d')?.classList.contains('active')) init3D();
+}, 500);
+</script>
 
 <script>
 // ── Navegación ──
