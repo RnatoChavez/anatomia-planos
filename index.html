@@ -835,6 +835,71 @@ function init3D() {
       });
       modelGroup.add(model);
       document.querySelector('#container3d .click-hint')?.remove();
+
+      // ── CREAR PLANOS basados en el tamaño REAL del modelo ──
+      const modelBox = new THREE.Box3().setFromObject(modelGroup);
+      const mSize = modelBox.getSize(new THREE.Vector3());
+      const mCenter = modelBox.getCenter(new THREE.Vector3());
+      
+      const planeH = mSize.y * 1.25;  // 25% más alto que el modelo
+      const planeW = mSize.x * 1.4;   // 40% más ancho
+      const waistY = mCenter.y - mSize.y * 0.12; // cintura (~12% abajo del centro)
+      
+      // Sagital (rosa) - XY, divide izq/der
+      const sagitalGeo = new THREE.PlaneGeometry(planeW, planeH);
+      const sagitalMat = new THREE.MeshStandardMaterial({ 
+        color: '#f472b6', transparent: true, opacity: 0.2, 
+        side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
+      });
+      const sagitalPlane = new THREE.Mesh(sagitalGeo, sagitalMat);
+      sagitalPlane.position.set(0, mCenter.y, 0);
+      sagitalPlane.renderOrder = 1;
+      scene.add(sagitalPlane);
+
+      const sagitalEdge = new THREE.Line(
+        new THREE.BoxGeometry(planeW, planeH, 0.01),
+        new THREE.LineBasicMaterial({ color: '#f472b6', transparent: true, opacity: 0.7, depthTest: true })
+      );
+      sagitalEdge.position.copy(sagitalPlane.position);
+      scene.add(sagitalEdge);
+
+      // Frontal (verde) - XZ, divide ant/post
+      const frontalGeo = new THREE.PlaneGeometry(planeW, planeH);
+      const frontalMat = new THREE.MeshStandardMaterial({ 
+        color: '#34d399', transparent: true, opacity: 0.16, 
+        side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
+      });
+      const frontalPlane = new THREE.Mesh(frontalGeo, frontalMat);
+      frontalPlane.position.set(0, mCenter.y, 0);
+      frontalPlane.rotation.y = Math.PI / 2;
+      frontalPlane.renderOrder = 1;
+      scene.add(frontalPlane);
+
+      const frontalEdge = new THREE.Line(
+        new THREE.BoxGeometry(0.01, planeH, planeW),
+        new THREE.LineBasicMaterial({ color: '#34d399', transparent: true, opacity: 0.7, depthTest: true })
+      );
+      frontalEdge.position.copy(frontalPlane.position);
+      scene.add(frontalEdge);
+
+      // Transversal (amarillo) - horizontal a la altura de la cintura
+      const transGeo = new THREE.PlaneGeometry(planeW * 1.1, planeW * 1.05);
+      const transMat = new THREE.MeshStandardMaterial({ 
+        color: '#fbbf24', transparent: true, opacity: 0.2, 
+        side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
+      });
+      const transPlane = new THREE.Mesh(transGeo, transMat);
+      transPlane.position.set(0, waistY, 0);
+      transPlane.rotation.x = -Math.PI / 2;
+      transPlane.renderOrder = 1;
+      scene.add(transPlane);
+
+      // Anillo en la cintura
+      const ringGeo = new THREE.TorusGeometry(planeW * 0.45, 0.03, 8, 48);
+      const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: '#fbbf24', transparent: true, opacity: 0.6, depthTest: true }));
+      ring.position.set(0, waistY, 0);
+      ring.rotation.x = Math.PI / 2;
+      scene.add(ring);
     },
     (progress) => {
       if (progress.total) {
@@ -848,68 +913,7 @@ function init3D() {
     }
   );
 
-  // PLANOS SEMITRANSPARENTES (agrandados para cubrir todo el cuerpo)
-  const planeY = 1.5;
-  const planeH = 7.0;  // altura: cubre de pies a cabeza
-  const planeW = 3.8;  // ancho: cubre brazos extendidos
-  
-  // Sagital (rosa) - XY, divide izq/der
-  const sagitalGeo = new THREE.PlaneGeometry(planeW, planeH);
-  const sagitalMat = new THREE.MeshStandardMaterial({ 
-    color: '#f472b6', transparent: true, opacity: 0.2, 
-    side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
-  });
-  const sagitalPlane = new THREE.Mesh(sagitalGeo, sagitalMat);
-  sagitalPlane.position.set(0, planeY, 0);
-  sagitalPlane.renderOrder = 1;
-  scene.add(sagitalPlane);
-
-  // Borde sagital
-  const sagitalEdge = new THREE.Line(
-    new THREE.BoxGeometry(planeW, planeH, 0.01),
-    new THREE.LineBasicMaterial({ color: '#f472b6', transparent: true, opacity: 0.7, depthTest: true })
-  );
-  sagitalEdge.position.copy(sagitalPlane.position);
-  scene.add(sagitalEdge);
-
-  // Frontal (verde) - XZ, divide ant/post
-  const frontalGeo = new THREE.PlaneGeometry(planeW, planeH);
-  const frontalMat = new THREE.MeshStandardMaterial({ 
-    color: '#34d399', transparent: true, opacity: 0.16, 
-    side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
-  });
-  const frontalPlane = new THREE.Mesh(frontalGeo, frontalMat);
-  frontalPlane.position.set(0, planeY, 0);
-  frontalPlane.rotation.y = Math.PI / 2;
-  frontalPlane.renderOrder = 1;
-  scene.add(frontalPlane);
-
-  // Borde frontal
-  const frontalEdge = new THREE.Line(
-    new THREE.BoxGeometry(0.01, planeH, planeW),
-    new THREE.LineBasicMaterial({ color: '#34d399', transparent: true, opacity: 0.7, depthTest: true })
-  );
-  frontalEdge.position.copy(frontalPlane.position);
-  scene.add(frontalEdge);
-
-  // Transversal (amarillo) - horizontal a la altura del ombligo
-  const transGeo = new THREE.PlaneGeometry(planeW, planeW * 0.95);
-  const transMat = new THREE.MeshStandardMaterial({ 
-    color: '#fbbf24', transparent: true, opacity: 0.2, 
-    side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1, depthWrite: false 
-  });
-  const transPlane = new THREE.Mesh(transGeo, transMat);
-  transPlane.position.set(0, 1.9, 0);
-  transPlane.rotation.x = -Math.PI / 2;
-  transPlane.renderOrder = 1;
-  scene.add(transPlane);
-
-  // Anillo transversal (más grande para cubrir la figura)
-  const ringGeo = new THREE.TorusGeometry(1.5, 0.03, 8, 48);
-  const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: '#fbbf24', transparent: true, opacity: 0.6, depthTest: true }));
-  ring.position.set(0, 1.9, 0);
-  ring.rotation.x = Math.PI / 2;
-  scene.add(ring);
+  // PLANOS: se crean después de cargar el modelo (ver callback arriba)
 
   // Piso sutil
   const floorGeo = new THREE.CircleGeometry(5, 32);
