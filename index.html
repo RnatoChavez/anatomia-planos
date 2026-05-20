@@ -846,16 +846,17 @@ function init3D() {
       });
       
       // Conectar cubo de vistas (animación suave + centrado perfecto)
-      const cubeDist = 5.5;
+      const cubeDist = 7;
+      const headOffset = mSize.y * 0.25; // compensar altura de la cabeza
       document.querySelectorAll('#cube3d div[data-view]').forEach(face => {
         face.onclick = () => {
           const target = new THREE.Vector3(0, mCenter.y, 0);
           controls.target.copy(target);
           switch(face.dataset.view) {
-            case 'front':  camera.position.set(target.x, target.y, target.z + cubeDist); break;
-            case 'back':   camera.position.set(target.x, target.y, target.z - cubeDist); break;
-            case 'right':  camera.position.set(target.x + cubeDist, target.y, target.z); break;
-            case 'left':   camera.position.set(target.x - cubeDist, target.y, target.z); break;
+            case 'front':  camera.position.set(target.x, target.y + headOffset, target.z + cubeDist); break;
+            case 'back':   camera.position.set(target.x, target.y + headOffset, target.z - cubeDist); break;
+            case 'right':  camera.position.set(target.x + cubeDist, target.y + headOffset, target.z); break;
+            case 'left':   camera.position.set(target.x - cubeDist, target.y + headOffset, target.z); break;
             case 'top':    camera.position.set(target.x, target.y + cubeDist, target.z + 0.01); break;
             case 'bottom': camera.position.set(target.x, target.y - cubeDist, target.z + 0.01); break;
           }
