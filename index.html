@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Planos Anatómicos · Estudio Interactivo v1.6</title>
+<title>Planos Anatómicos · Estudio Interactivo v1.7</title>
 <style>
   :root {
     --bg: #0f172a;
@@ -431,7 +431,7 @@
 
 <header>
   <h1>Planos y Ejes Anatómicos</h1>
-  <p>Explora los planos sagital, frontal y transversal — la base del estudio anatómico · <span style="color:var(--accent);font-size:0.8rem;">v1.6</span></p>
+  <p>Explora los planos sagital, frontal y transversal — la base del estudio anatómico · <span style="color:var(--accent);font-size:0.8rem;">v1.7</span></p>
 </header>
 
 <nav>
@@ -472,8 +472,8 @@
     </div>
 
     <div style="display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
-      <button id="btn-sagital" class="plane-toggle active" style="background:#f472b620;border:2px solid #f472b6;color:#f472b6;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟣 Sagital</button>
-      <button id="btn-frontal" class="plane-toggle active" style="background:#34d39920;border:2px solid #34d399;color:#34d399;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟢 Frontal</button>
+      <button id="btn-sagital" class="plane-toggle active" style="background:#f472b620;border:2px solid #f472b6;color:#f472b6;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟣 Plano Medio (Sagital)</button>
+      <button id="btn-frontal" class="plane-toggle active" style="background:#34d39920;border:2px solid #34d399;color:#34d399;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟢 Plano Frontal (Coronal)</button>
       <button id="btn-transversal" class="plane-toggle active" style="background:#fbbf2420;border:2px solid #fbbf24;color:#fbbf24;padding:0.5rem 1.2rem;border-radius:999px;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">🟡 Transversal</button>
     </div>
 
@@ -490,7 +490,7 @@
       <div class="card card-sagital" id="card-sagital">
         <div class="accent-bar"></div>
         <div class="card-icon">⬌</div>
-        <h3>Plano Sagital</h3>
+        <h3>Plano Medio (Sagital Medio)</h3>
         <p>Divide el cuerpo en <strong>izquierda y derecha</strong>. El plano <em>mediosagital</em> pasa exactamente por la línea media; los planos <em>parasagitales</em> son paralelos a él.</p>
         <p style="margin-top:0.75rem;color:var(--sagital);font-size:0.85rem;"><strong>Movimientos:</strong> Flexión y extensión</p>
       </div>
@@ -784,7 +784,7 @@ function init3D() {
       const planeW = mSize.x * 1.05;  // solo 5% más ancho
       const waistY = mCenter.y + mSize.y * 0.04; // cintura, apenas sobre el centro
       
-      // Sagital (rosa) - XY, divide izq/der
+      // Plano Medio (Sagital Medio) - rosa - YZ, perpendicular al eje X, divide izq/der
       const sagitalGeo = new THREE.PlaneGeometry(planeW, planeH);
       const sagitalMat = new THREE.MeshStandardMaterial({ 
         color: '#f472b6', transparent: true, opacity: 0.2, 
@@ -792,17 +792,18 @@ function init3D() {
       });
       const sagitalPlane = new THREE.Mesh(sagitalGeo, sagitalMat);
       sagitalPlane.position.set(0, mCenter.y, 0);
+      sagitalPlane.rotation.y = Math.PI / 2;  // rota para que el plano quede en YZ (divide izq/der)
       sagitalPlane.renderOrder = 1;
       scene.add(sagitalPlane);
 
       const sagitalEdge = new THREE.Line(
-        new THREE.BoxGeometry(planeW, planeH, 0.01),
+        new THREE.BoxGeometry(0.01, planeH, planeW),
         new THREE.LineBasicMaterial({ color: '#f472b6', transparent: true, opacity: 0.7, depthTest: true })
       );
       sagitalEdge.position.copy(sagitalPlane.position);
       scene.add(sagitalEdge);
 
-      // Frontal (verde) - XZ, divide ant/post
+      // Plano Frontal (Coronal) - verde - XY, perpendicular al eje Z, divide ant/post
       const frontalGeo = new THREE.PlaneGeometry(planeW, planeH);
       const frontalMat = new THREE.MeshStandardMaterial({ 
         color: '#34d399', transparent: true, opacity: 0.16, 
@@ -810,12 +811,12 @@ function init3D() {
       });
       const frontalPlane = new THREE.Mesh(frontalGeo, frontalMat);
       frontalPlane.position.set(0, mCenter.y, 0);
-      frontalPlane.rotation.y = Math.PI / 2;
+      // sin rotación: plano XY por defecto, normal en Z → divide anterior/posterior
       frontalPlane.renderOrder = 1;
       scene.add(frontalPlane);
 
       const frontalEdge = new THREE.Line(
-        new THREE.BoxGeometry(0.01, planeH, planeW),
+        new THREE.BoxGeometry(planeW, planeH, 0.01),
         new THREE.LineBasicMaterial({ color: '#34d399', transparent: true, opacity: 0.7, depthTest: true })
       );
       frontalEdge.position.copy(frontalPlane.position);
