@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Planos Anatómicos · Estudio Interactivo v1.7</title>
+<title>Planos Anatómicos · Estudio Interactivo v1.8</title>
 <style>
   :root {
     --bg: #0f172a;
@@ -431,7 +431,7 @@
 
 <header>
   <h1>Planos y Ejes Anatómicos</h1>
-  <p>Explora los planos sagital, frontal y transversal — la base del estudio anatómico · <span style="color:var(--accent);font-size:0.8rem;">v1.7</span></p>
+  <p>Explora los planos sagital, frontal y transversal — la base del estudio anatómico · <span style="color:var(--accent);font-size:0.8rem;">v1.8</span></p>
 </header>
 
 <nav>
@@ -690,7 +690,7 @@ function init3D() {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(W, H);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.enabled = false;  // sin piso receptor de sombras
   container.appendChild(renderer.domElement);
 
   // Controles
@@ -709,18 +709,8 @@ function init3D() {
   scene.add(ambient);
   
   // Luz principal (key light) - cálida, desde arriba-derecha
-  const key = new THREE.DirectionalLight('#fff5e6', 1.4);
+  const key = new THREE.DirectionalLight('#fff5e6', 3.8);
   key.position.set(6, 10, 6);
-  key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
-  key.shadow.camera.near = 0.5;
-  key.shadow.camera.far = 40;
-  key.shadow.camera.left = -8;
-  key.shadow.camera.right = 8;
-  key.shadow.camera.top = 8;
-  key.shadow.camera.bottom = -8;
-  key.shadow.bias = -0.0005;
-  key.shadow.normalBias = 0.02;
   scene.add(key);
 
   // Luz de relleno - azulada fría para contraste
@@ -912,15 +902,6 @@ function init3D() {
   );
 
   // PLANOS: se crean después de cargar el modelo (ver callback arriba)
-
-  // Piso sutil
-  const floorGeo = new THREE.CircleGeometry(5, 32);
-  const floorMat = new THREE.MeshStandardMaterial({ color: '#0f172a', roughness: 0.9, metalness: 0, transparent: true, opacity: 0.3 });
-  const floor = new THREE.Mesh(floorGeo, floorMat);
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.7;
-  floor.receiveShadow = true;
-  scene.add(floor);
 
   // Animación
   function animate() {
